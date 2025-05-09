@@ -103,10 +103,10 @@ namespace BookStore.Patients
 
                 await _patientRepository.UpdateAsync(patient);
             }
-            catch (Exception ex)
+            catch (Exception xe)
             {
 
-                throw ex;
+                throw xe;
             }
         }
     }
