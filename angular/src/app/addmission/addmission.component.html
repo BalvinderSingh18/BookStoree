@@ -1,23 +1,89 @@
 <div [@routerTransition]>
-    <section class="content-header">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-6">
-            <h1>{{ "Addmissions" | localize }}</h1>
-          </div>
-          <div class="col-6 text-right">
-            <a href="javascript:;" class="btn bg-blue" (click)="createAddmission()">
-              <i class="fa fa-plus-square"></i>
-              {{ "Create" | localize }}
-            </a>
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-6">
+          <h1>{{ "Addmissions" | localize }}</h1>
+        </div>
+        <div class="col-6 text-right">
+          <a href="javascript:;" class="btn bg-blue" (click)="createAddmission()">
+            <i class="fa fa-plus-square"></i>
+            {{ "Create" | localize }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        [class.active]="activeTab === 'list'"
+        (click)="activeTab = 'list'"
+        href="javascript:void(0);"
+      >
+        List
+      </a>
+    </li>
+        <li class="nav-item">
+      <a
+        class="nav-link"
+        [class.active]="activeTab === 'dashboard'"
+        (click)="activeTab = 'dashboard'"
+        href="javascript:void(0);"
+      >
+        Dashboard
+      </a>
+    </li>
+  </ul>
+
+  <section class="content px-2">
+    <div class="container-fluid">
+      <!-- Dashboard tab content -->
+      <div *ngIf="activeTab === 'dashboard'">
+        <!-- You can put dashboard content or charts here -->
+           <div *ngIf="dashboards[0]?.lowAvailabilityAlert" class="alert alert-warning mt-3" role="alert">
+        ⚠️ Warning: Bed availability is critically low! Only {{dashboards[0]?.availableBeds}} out of {{dashboards[0]?.totalBeds}} beds are available.
+      </div>
+        <div class="card mt-3">
+          <div class="card-body">
+            <table class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>Total Beds</th>
+                  <th>Availableb Beds</th>
+                  <th>Occupied Beds</th>
+                  <th>Admit Patients</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let dashboard of dashboards">
+                  <td>{{dashboard.totalBeds}}</td>
+                  <td>{{dashboard.availableBeds}}</td>
+                  <td>{{dashboard.occupiedBeds}}</td>
+                  <td>{{dashboard.currentAdmittedPatients}}</td>
+                </tr>
+              </tbody>
+            </table>
+          <div class="chart-section">
+          <h2>Total Admissions vs Discharges</h2>
+          <canvas
+            baseChart
+                [data]="pieChartData"
+              [labels]="pieChartLabels"
+             [options]="pieChartOptions"
+              [chartType]="pieChartType">
+            </canvas>
+            </div>
           </div>
         </div>
       </div>
-    </section>
-  
-    <section class="content px-2">
-      <div class="container-fluid">
-        <div class="card">
+
+      <!-- List tab content -->
+      <div *ngIf="activeTab === 'list'">
+        <div class="card mt-3">
           <!-- Search and Filters -->
           <div class="card-header">
             <div class="row">
@@ -57,7 +123,7 @@
                 </div>
               </div>
             </div>
-  
+
             <!-- Advanced Filters -->
             <div *ngIf="advancedFiltersVisible" class="card mb-0 mt-2">
               <div class="card-body">
@@ -138,7 +204,7 @@
               </div>
             </div>
           </div>
-  
+
           <!-- Table -->
           <div class="card-body">
             <div class="table-responsive">
@@ -160,10 +226,7 @@
                         }"
                       ></i>
                     </th>
-                    <th
-                      (click)="changeSorting('name')"
-                      style="cursor: pointer"
-                    >
+                    <th (click)="changeSorting('name')" style="cursor: pointer">
                       {{ "Bed Number" | localize }}
                       <i
                         class="ml-1 fas"
@@ -188,49 +251,45 @@
                       ></i>
                     </th>
                     <th (click)="changeSorting('name')" style="cursor: pointer">
-                        {{ "Discharge Date" | localize }}
-                        <i
-                          class="ml-1 fas"
-                          [ngClass]="{
-                            'fa-arrow-up text-primary': sorting === 'name asc',
-                            'fa-arrow-down text-primary': sorting === 'name desc',
-                            'fa-sort text-muted':
-                              sorting !== 'name asc' && sorting !== 'name desc'
-                          }"
-                        ></i>
-                      </th>
-                      <th (click)="changeSorting('name')" style="cursor: pointer">
-                        {{ "Notes" | localize }}
-                        <i
-                          class="ml-1 fas"
-                          [ngClass]="{
-                            'fa-arrow-up text-primary': sorting === 'name asc',
-                            'fa-arrow-down text-primary': sorting === 'name desc',
-                            'fa-sort text-muted':
-                              sorting !== 'name asc' && sorting !== 'name desc'
-                          }"
-                        ></i>
-                      </th>
+                      {{ "Discharge Date" | localize }}
+                      <i
+                        class="ml-1 fas"
+                        [ngClass]="{
+                          'fa-arrow-up text-primary': sorting === 'name asc',
+                          'fa-arrow-down text-primary': sorting === 'name desc',
+                          'fa-sort text-muted':
+                            sorting !== 'name asc' && sorting !== 'name desc'
+                        }"
+                      ></i>
+                    </th>
+                    <th (click)="changeSorting('name')" style="cursor: pointer">
+                      {{ "Notes" | localize }}
+                      <i
+                        class="ml-1 fas"
+                        [ngClass]="{
+                          'fa-arrow-up text-primary': sorting === 'name asc',
+                          'fa-arrow-down text-primary': sorting === 'name desc',
+                          'fa-sort text-muted':
+                            sorting !== 'name asc' && sorting !== 'name desc'
+                        }"
+                      ></i>
+                    </th>
                     <th style="width: 310px">{{ "Actions" | localize }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
-                    *ngFor="
-                      let addmission of addmissions
-                        | paginate
-                          : {
-                              id: 'server',
-                              itemsPerPage: pageSize,
-                              currentPage: pageNumber,
-                              totalItems: totalItems
-                            }
-                    "
+                    *ngFor="let addmission of addmissions | paginate : {
+                      id: 'server',
+                      itemsPerPage: pageSize,
+                      currentPage: pageNumber,
+                      totalItems: totalItems
+                    }"
                   >
                     <td>{{ addmission.patientName }}</td>
                     <td>{{ addmission.bedNumber }}</td>
-                    <td>{{ addmission.admitDate | date : "dd-MM-yyyy" }}</td>
-                    <td>{{ addmission.dischargeDate | date : "dd-MM-yyyy" }}</td>
+                    <td>{{ addmission.admitDate | date: "dd-MM-yyyy" }}</td>
+                    <td>{{ addmission.dischargeDate | date: "dd-MM-yyyy" }}</td>
                     <td>{{ addmission.notes }}</td>
                     <td>
                       <button
@@ -253,7 +312,7 @@
               </table>
             </div>
           </div>
-  
+
           <!-- Footer -->
           <div class="card-footer table-card-footer bg-light border-top">
             <div class="row">
@@ -272,23 +331,13 @@
                   <abp-pagination-controls
                     id="server"
                     (pageChange)="getDataPage($event)"
-                  >
-                  </abp-pagination-controls>
+                  ></abp-pagination-controls>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </section>
-  </div>
-
-
-
-
-
-
-
-
-
-  
+    </div>
+  </section>
+</div>
