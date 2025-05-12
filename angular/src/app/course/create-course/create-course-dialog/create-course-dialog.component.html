@@ -1,0 +1,72 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #createCourseForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="'CreateNewCourse' | localize"
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+  <div class="modal-body">
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="CourseName">
+        {{ "Name" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="CourseName"
+          id="CourseName"
+          maxlength="64"
+          required
+          pattern="^[a-zA-Z ]+$"
+          [(ngModel)]="course.name"
+          #courseNameModel="ngModel"
+          #courseNameEl
+        />
+        <div *ngIf="courseNameModel.invalid && courseNameModel.touched" class="text-danger">
+          <!-- <div *ngIf="studentNameModel.errors?.required">Name is required.</div> -->
+          <div *ngIf="courseNameModel.errors?.pattern">Only alphabets and spaces are allowed.</div>
+        </div>
+        <abp-validation-summary
+          [control]="courseNameModel"
+          [controlEl]="courseNameEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="bookDescription">
+        {{ "Description" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="bookDescription"
+          id="bookDescription"
+          maxlength="64"
+          required
+          pattern="^[a-zA-Z ]+$"
+          [(ngModel)]="course.description"
+          #courseDescriptionModel="ngModel"
+          #courseDescriptionEl
+        />
+        <div *ngIf="courseNameModel.invalid && courseNameModel.touched" class="text-danger">
+          <!-- <div *ngIf="studentNameModel.errors?.required">Name is required.</div> -->
+          <div *ngIf="courseNameModel.errors?.pattern">Only alphabets and spaces are allowed.</div>
+        </div>
+        <abp-validation-summary
+          [control]="courseDescriptionModel"
+          [controlEl]="courseDescriptionEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+  </div>
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!createCourseForm.form.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>

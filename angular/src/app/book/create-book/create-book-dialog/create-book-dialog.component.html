@@ -1,0 +1,106 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #createBookForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="'CreateNewBook' | localize"
+    (onCloseClick)="bsModelRef.hide()"
+  ></abp-modal-header>
+  <div class="modal-body">
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="bookTitle">
+        {{ "Title" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="bookTitle"
+          id="bookTitle"
+          minlength="2"
+          maxlength="64"
+          required
+          [(ngModel)]="book.title"
+          #bookTitleModel="ngModel"
+          #bookTitleEl
+        />
+        <abp-validation-summary
+          [control]="bookTitleModel"
+          [controlEl]="bookTitleEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="bookAuthor">
+        {{ "Author" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="bookAuthor"
+          id="bookAuthor"
+          minlength="2"
+          maxlength="64"
+          required
+          [(ngModel)]="book.author"
+          #bookAuthorModel="ngModel"
+          #bookAuthorEl
+        />
+        <abp-validation-summary
+          [control]="bookAuthorModel"
+          [controlEl]="bookAuthorEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="bookPublishedDate">
+        {{ "Published Date" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="date"
+          class="form-control"
+          name="bookPublishedDate"
+          id="bookPublishedDate"
+          required
+          [(ngModel)]="selectedDate"
+          #bookPublishedDateModel="ngModel"
+          #bookPublishedDateEl
+        />
+        <abp-validation-summary
+          [control]="bookPublishedDateModel"
+          [controlEl]="bookPublishedDateEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="bookPrice">
+        {{ "Price" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="number"
+          class="form-control"
+          name="bookPrice"
+          id="bookPrice"
+          required
+          [(ngModel)]="book.price"
+          #bookPriceModel="ngModel"
+          #bookPriceEl
+        />
+        <abp-validation-summary
+          [control]="bookPriceModel"
+          [controlEl]="bookPriceEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+  </div>
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!createBookForm.form.valid || saving"
+    (onCancelClick)="bsModelRef.hide()"
+  ></abp-modal-footer>
+</form>

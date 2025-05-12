@@ -1,0 +1,177 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #editStudentForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="'EditStudent' | localize"
+    (onCloseClick)="bsModelRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body">
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentName">
+        {{ "Name" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          id="StudentName"
+          name="StudentName"
+          required
+          pattern="^[a-zA-Z ]+$"
+          [(ngModel)]="student.name"
+          #studentNameModel="ngModel"
+        />
+        <div *ngIf="studentNameModel.invalid && studentNameModel.touched" class="text-danger">
+          <div *ngIf="studentNameModel.errors?.pattern">Only alphabets and spaces are allowed.</div>
+        </div>
+        <abp-validation-summary
+          [control]="studentNameModel"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentAddress">
+        {{ "Address" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          id="StudentAddress"
+          name="StudentAddress"
+          required
+          pattern="^[a-zA-Z0-9, ]+$"
+          [(ngModel)]="student.address"
+          #studentAddressModel="ngModel"
+        />
+        <div *ngIf="studentAddressModel.invalid && studentAddressModel.touched" class="text-danger">
+          <div *ngIf="studentAddressModel.errors?.pattern">Only alphabets,Numbers,Commas and spaces are allowed.</div>
+        </div>
+        <abp-validation-summary
+          [control]="studentAddressModel"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentCountry">
+        {{ 'Country' | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          class="form-control"
+          id="StudentCountry"
+          name="StudentCountry"
+          required
+          [(ngModel)]="student.countryId"
+          (change)="onCountryChange(student.countryId)"
+        >
+          <option [ngValue]="undefined" disabled>Select Country</option>
+          <option *ngFor="let country of countries" [ngValue]="country.id">
+            {{ country.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentState">
+        {{ 'State' | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          class="form-control"
+          id="StudentState"
+          name="StudentState"
+          required
+          [(ngModel)]="student.stateId"
+          (change)="onStateChange(student.stateId)"
+        >
+        <option [ngValue]="undefined" disabled>Select State</option>
+          <option *ngFor="let state of filteredStates" [ngValue]="state.id">
+            {{ state.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentCity">
+        {{ 'City' | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          class="form-control"
+          id="StudentCity"
+          name="StudentCity"
+          required
+          [(ngModel)]="student.cityId"
+        >
+          <option [ngValue]="undefined" disabled>Select City</option>
+          <option *ngFor="let city of filteredCities" [ngValue]="city.id">
+            {{ city.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentGender">
+        {{ "Gender" | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          [(ngModel)]="selectedGender"
+          class="form-control"
+          id="gender"
+          name="gender"
+          required
+        >
+          <option [ngValue]="undefined" disabled>Select Gender</option>
+          <option [ngValue]="0">Male</option>
+          <option [ngValue]="1">Female</option>
+          <option [ngValue]="2">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentDob">
+        {{ "DOB" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="date"
+          class="form-control"
+          id="StudentDob"
+          name="StudentDob"
+          required
+          [(ngModel)]="selectedDate"
+        />
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="courseId">
+        {{ "Course" | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          class="form-control"
+          id="courseId"
+          name="courseId"
+          required
+          [(ngModel)]="student.courseId"
+        >
+          <option [ngValue]="undefined" disabled>Select Course</option>
+          <option *ngFor="let course of courses" [ngValue]="course.id">
+            {{ course.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!editStudentForm.form.valid || saving"
+    (onCancelClick)="bsModelRef.hide()"
+  ></abp-modal-footer>
+</form>

@@ -1,0 +1,108 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #bedForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="isEditMode ? ('EditBed' | localize) : ('CreateNewBed' | localize)"
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body">
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="bedNumber">
+        {{ "Bed Number" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="bedNumber"
+          id="bedNumber"
+          minlength="1"
+          maxlength="10"
+          placeholder="Enter Bed Number"
+          pattern="^[a-zA-Z0-9 ]+$"
+          required
+          [(ngModel)]="bed.bedNumber"
+          #bedNumberModel="ngModel"
+          #bedNumberEl
+        />
+        <div *ngIf="bedNumberModel.invalid && bedNumberModel.touched" class="text-danger">
+            <div *ngIf="bedNumberModel.errors?.pattern">
+              Only alphabets,Numbers and spaces are allowed.
+            </div>
+          </div>
+        <abp-validation-summary
+          [control]="bedNumberModel"
+          [controlEl]="bedNumberEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="BedType">
+        {{ "Type" | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          [(ngModel)]="selectedType"
+          class="form-control"
+          id="BedType"
+          name="BedType"
+          required
+          #BedTypeModel="ngModel"
+          #BedTypeEl
+        >
+          <option [ngValue]="undefined" disabled>Select Type</option>
+          <option [ngValue]="0">ICU</option>
+          <option [ngValue]="1">General</option>
+          <option [ngValue]="2">Etc</option>
+        </select>
+        <abp-validation-summary
+          [control]="BedTypeModel"
+          [controlEl]="BedTypeEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="bedStatus">
+        {{ "Status" | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          [(ngModel)]="selectedStatus"
+          class="form-control"
+          id="bedStatus"
+          name="bedStatus"
+          required
+          #BedStatusModel="ngModel"
+          #BedStatusEl
+        >
+          <option [ngValue]="undefined" disabled>Select Status</option>
+          <option [ngValue]="0">Available</option>
+          <option [ngValue]="1">Occupied</option>
+          <option [ngValue]="2">Blocked</option>
+        </select>
+        <abp-validation-summary
+          [control]="BedStatusModel"
+          [controlEl]="BedStatusEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+  </div>
+
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!bedForm.form.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>
+
+
+
+
+
+

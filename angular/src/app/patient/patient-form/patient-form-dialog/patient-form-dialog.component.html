@@ -1,0 +1,200 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #patientForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="
+      isEditMode ? ('EditPatient' | localize) : ('CreateNewPatient' | localize)
+    "
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body">
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="patientName">
+        {{ "Name" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="patientName"
+          id="patientName"
+          maxlength="20"
+          placeholder="Enter Name"
+          pattern="^[a-zA-Z ]+$"
+          required
+          [(ngModel)]="patient.name"
+          #patientNameModel="ngModel"
+          #patientNameEl
+        />
+        <div
+          *ngIf="patientNameModel.invalid && patientNameModel.touched"
+          class="text-danger"
+        >
+          <div *ngIf="patientNameModel.errors?.pattern">
+            Only alphabets and spaces are allowed.
+          </div>
+        </div>
+        <abp-validation-summary
+          [control]="patientNameModel"
+          [controlEl]="patientNameEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="patientAge">
+        {{ "Age" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="number"
+          class="form-control"
+          name="patientAge"
+          id="patientAge"
+          placeholder="Enter Name"
+          required
+          [(ngModel)]="patient.age"
+          #patientAgeModel="ngModel"
+          #patientAgeEl
+        />
+        <div
+          *ngIf="patientAgeModel.invalid && patientAgeModel.touched"
+          class="text-danger"
+        >
+          <div *ngIf="patientAgeModel.errors?.pattern">
+            Only Numbers are allowed.
+          </div>
+        </div>
+        <abp-validation-summary
+          [control]="patientAgeModel"
+          [controlEl]="patientAgeEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="patientGender">
+        {{ "Gender" | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          [(ngModel)]="selectedGender"
+          class="form-control"
+          id="patientGender"
+          name="patientGender"
+          required
+          #patientGenderModel="ngModel"
+          #patientGenderEl
+        >
+          <option [ngValue]="undefined" disabled>Select Gender</option>
+          <option [ngValue]="0">Male</option>
+          <option [ngValue]="1">Female</option>
+          <option [ngValue]="2">Others</option>
+        </select>
+        <abp-validation-summary
+          [control]="patientGenderModel"
+          [controlEl]="patientGenderEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="patientPH">
+        {{ "Phone Number" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="patientPH"
+          id="patientPH"
+          placeholder="Enter phone Number"
+          required
+          [(ngModel)]="patient.phoneNumber"
+          #patientPHModel="ngModel"
+          #patientPhEl
+        />
+        <!-- <div *ngIf="patientAgeModel.invalid && patientAgeModel.touched" class="text-danger">
+              <div *ngIf="patientAgeModel.errors?.pattern">
+                Only Numbers are allowed.
+              </div>
+            </div> -->
+        <abp-validation-summary
+          [control]="patientPHModel"
+          [controlEl]="patientPhEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="patientDisease">
+        {{ "Disease" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="patientDisease"
+          id="patientDisease"
+          maxlength="60"
+          placeholder="Enter Disease"
+          pattern="^[a-zA-Z0-9, ]+$"
+          required
+          [(ngModel)]="patient.disease"
+          #patientDiseaseModel="ngModel"
+          #patientDiseaseEl
+        />
+        <div
+          *ngIf="patientDiseaseModel.invalid && patientDiseaseModel.touched"
+          class="text-danger"
+        >
+          <div *ngIf="patientDiseaseModel.errors?.pattern">
+            Only alphabets,Numbers,Commas and spaces are allowed.
+          </div>
+        </div>
+        <abp-validation-summary
+          [control]="patientDiseaseModel"
+          [controlEl]="patientDiseaseEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="patientDoctor">
+        {{ "Doctor" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="patientDoctor"
+          id="patientDoctor"
+          maxlength="60"
+          placeholder="Enter Doctor Name"
+          pattern="^[a-zA-Z ]+$"
+          required
+          [(ngModel)]="patient.doctor"
+          #patientDoctorModel="ngModel"
+          #patientDoctorEl
+        />
+        <div
+          *ngIf="patientDoctorModel.invalid && patientDoctorModel.touched"
+          class="text-danger"
+        >
+          <div *ngIf="patientDoctorModel.errors?.pattern">
+            Only alphabets and spaces are allowed.
+          </div>
+        </div>
+        <abp-validation-summary
+          [control]="patientDoctorModel"
+          [controlEl]="patientDoctorEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+  </div>
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!patientForm.form.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>

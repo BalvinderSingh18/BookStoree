@@ -1,0 +1,229 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #createStudentForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="'CreateNewStudent' | localize"
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body">
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentName">
+        {{ 'Name' | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          id="StudentName"
+          name="StudentName"
+          required
+          pattern="^[a-zA-Z ]+$"
+          placeholder="Enter Name"
+          [(ngModel)]="student.name"
+          #studentNameModel="ngModel"
+          #studentNameEl
+        />
+        <div *ngIf="studentNameModel.invalid && studentNameModel.touched" class="text-danger">
+          <div *ngIf="studentNameModel.errors?.pattern">
+            Only alphabets and spaces are allowed.
+          </div>
+        </div>
+        <abp-validation-summary
+          [control]="studentNameModel"
+          [controlEl]="studentNameEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentAddress">
+        {{ 'Address' | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          id="StudentAddress"
+          name="StudentAddress"
+          required
+          pattern="^[a-zA-Z0-9, ]+$"
+          placeholder="Enter Address"
+          [(ngModel)]="student.address"
+          #studentAddressModel="ngModel"
+          #studentAddressEl
+        />
+        <div *ngIf="studentAddressModel.invalid && studentAddressModel.touched" class="text-danger">
+          <div *ngIf="studentAddressModel.errors?.pattern">
+            Only alphabets,Numbers,Commas and spaces are allowed.
+          </div>
+        </div>
+        <abp-validation-summary
+          [control]="studentAddressModel"
+          [controlEl]="studentAddressEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentCountry">
+        {{ 'Country' | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          class="form-control"
+          id="StudentCountry"
+          name="StudentCountry"
+          required
+          [(ngModel)]="student.countryId"
+          (change)="onCountryChange(student.countryId)"
+          #studentCountryModel="ngModel"
+          #studentCountryEl
+        >
+          <option [ngValue]="undefined" disabled>Select Country</option>
+          <option *ngFor="let country of countries" [value]="country.id">
+            {{ country.name }}
+          </option>
+        </select>
+        <abp-validation-summary
+          [control]="studentCountryModel"
+          [controlEl]="studentCountryEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentState">
+        {{ 'State' | localize }}
+      </label>
+      <div class="col-md-9">
+        <!-- <div *ngIf="showCountryWarning" class="text-warning mb-2">
+          Please select a country first.
+        </div> -->
+        <select
+          class="form-control"
+          id="StudentState"
+          name="StudentState"
+          required
+          [(ngModel)]="student.stateId"
+          (change)="onStateChange(student.stateId)"
+          #studentStateModel="ngModel"
+          #studentStateEl
+        >
+          <option [ngValue]="undefined" disabled>Select State</option>
+          <option *ngFor="let state of filteredStates" [value]="state.id">
+            {{ state.name }}
+          </option>
+        </select>
+        <abp-validation-summary
+          [control]="studentStateModel"
+          [controlEl]="studentStateEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentCity">
+        {{ 'City' | localize }}
+      </label>
+      <div class="col-md-9">
+        <!-- <div *ngIf="showStateWarning" class="text-warning mb-2">
+          Please select a state first.
+        </div> -->
+        <select
+          class="form-control"
+          id="StudentCity"
+          name="StudentCity"
+          required
+          [(ngModel)]="student.cityId"
+          #studentCityModel="ngModel"
+          #studentCityEl
+        >
+          <option [ngValue]="undefined" disabled>Select City</option>
+          <option *ngFor="let city of filteredCities" [value]="city.id">
+            {{ city.name }}
+          </option>
+        </select>
+        <abp-validation-summary
+          [control]="studentCityModel"
+          [controlEl]="studentCityEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentGender">
+        {{ 'Gender' | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          [(ngModel)]="selectedGender"
+          class="form-control"
+          id="gender"
+          name="gender"
+          required
+          #studentGenderModel="ngModel"
+          #studentGenderEl
+        >
+          <option [ngValue]="undefined" disabled>Select Gender</option>
+          <option [ngValue]="0">Male</option>
+          <option [ngValue]="1">Female</option>
+          <option [ngValue]="2">Other</option>
+        </select>
+        <abp-validation-summary
+          [control]="studentGenderModel"
+          [controlEl]="studentGenderEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentDob">
+        {{ 'DOB' | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="date"
+          class="form-control"
+          id="StudentDob"
+          name="StudentDob"
+          required
+          [(ngModel)]="selectedDate"
+          #studentDobModel="ngModel"
+          #studentDobEl
+        />
+        <abp-validation-summary
+          [control]="studentDobModel"
+          [controlEl]="studentDobEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StudentCourse">
+        {{ 'Course' | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          class="form-control"
+          id="StudentCourse"
+          name="StudentCourse"
+          required
+          [(ngModel)]="student.courseId"
+          #studentCourseModel="ngModel"
+          #studentCourseEl
+        >
+          <option [ngValue]="undefined" disabled>Select Course</option>
+          <option *ngFor="let course of courses" [value]="course.id">
+            {{ course.name }}
+          </option>
+        </select>
+        <abp-validation-summary
+          [control]="studentCourseModel"
+          [controlEl]="studentCourseEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+  </div>
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!createStudentForm.form.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>

@@ -1,0 +1,149 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #addmissionForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="
+      isEditMode ? ('EditAddmission' | localize) : ('CreateNewAddmission' | localize)
+    "
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body">
+    <!-- Patient Selection -->
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="AddmissionPatientName">
+        {{ "Patient" | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          class="form-control"
+          id="AddmissionPatientName"
+          name="AddmissionPatientName"
+          required
+          [(ngModel)]="addmission.patientId"
+          #addPatientNameModel="ngModel"
+          #addPatientNameEl
+        >
+          <option [ngValue]="undefined" disabled>Select Patient</option>
+          <option *ngFor="let patient of patients" [value]="patient.id">
+            {{ patient.name }}
+          </option>
+        </select>
+        <abp-validation-summary
+          [control]="addPatientNameModel"
+          [controlEl]="addPatientNameEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+
+    <!-- Bed Selection -->
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="AddmissionBedNumber">
+        {{ "Bed Number" | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          class="form-control"
+          id="AddmissionBedNumber"
+          name="AddmissionBedNumber"
+          required
+          [(ngModel)]="addmission.bedId"
+          #addBedNumberModel="ngModel"
+          #addBedNumberEl
+        >
+          <option [ngValue]="undefined" disabled>Select Bed Number</option>
+          <option *ngFor="let bed of beds" [value]="bed.id">
+            {{ bed.bedNumber }}
+          </option>
+        </select>
+        <abp-validation-summary
+          [control]="addBedNumberModel"
+          [controlEl]="addBedNumberEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+
+    <!-- Admit Date -->
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="patientAD">
+        {{ "Admit Date" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="date"
+          class="form-control"
+          name="patientAD"
+          id="patientAD"
+          required
+          [(ngModel)]="selectedAdmitDate"
+          #addADModel="ngModel"
+          #addADEl
+        />
+        <abp-validation-summary
+          [control]="addADModel"
+          [controlEl]="addADEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+
+    <!-- Discharge Date -->
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="patientDD">
+        {{ "Discharge Date" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="date"
+          class="form-control"
+          name="patientDD"
+          id="patientDD"
+          [(ngModel)]="selectedDischargeDate"
+        />
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="Notes">
+        {{ "Notes" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="Notes"
+          id="Notes"
+          maxlength="60"
+          placeholder="Enter Notes"
+          pattern="^[a-zA-Z0-9, ]+$"
+          required
+          [(ngModel)]="addmission.notes"
+          #addNotesModel="ngModel"
+          #addNotesEl
+        />
+        <div
+          *ngIf="addNotesModel.invalid && addNotesModel.touched"
+          class="text-danger"
+        >
+          <div *ngIf="addNotesModel.errors?.pattern">
+            Only alphabets, numbers, commas and spaces are allowed.
+          </div>
+        </div>
+        <abp-validation-summary
+          [control]="addNotesModel"
+          [controlEl]="addNotesEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Footer -->
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!addmissionForm.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>

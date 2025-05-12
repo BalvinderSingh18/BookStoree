@@ -1,0 +1,73 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #createStateForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="'CreateNewState' | localize"
+    (onCloseClick)="bsModelRef.hide()"
+  ></abp-modal-header>
+  <div class="modal-body">
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="StateName">
+        {{ "Name" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="StateName"
+          id="StateName"
+          maxlength="64"
+          required
+          pattern="^[a-zA-Z ]+$"
+          [(ngModel)]="state.name"
+          #stateNameModel="ngModel"
+          #stateNameEl
+        />
+        <div *ngIf="stateNameModel.invalid && stateNameModel.touched" class="text-danger">
+          <div *ngIf="stateNameModel.errors?.pattern">Only alphabets and spaces are allowed.</div>
+        </div>
+        <abp-validation-summary
+          [control]="stateNameModel"
+          [controlEl]="stateNameEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="StateCountry">
+          {{ 'Country' | localize }}
+        </label>
+        <div class="col-md-9">
+          <select
+            class="form-control"
+            id="StateCountry"
+            name="StateCountry"
+            required
+            [(ngModel)]="state.countryId"
+            #stateCountryModel="ngModel"
+            #stateCountryEl
+          >
+          <option [ngValue]="undefined" disabled>Select Country</option>
+            <option *ngFor="let country of countries" [value]="country.id">
+              {{ country.name }}
+            </option>
+          </select>
+          <abp-validation-summary
+            [control]="stateCountryModel"
+            [controlEl]="stateCountryEl"
+          ></abp-validation-summary>
+        </div>
+      </div>
+  </div>
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!createStateForm.form.valid || saving"
+    (onCancelClick)="bsModelRef.hide()"
+  ></abp-modal-footer>
+</form>
+
+
+
+
