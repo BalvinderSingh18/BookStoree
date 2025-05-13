@@ -1,22 +1,29 @@
-import { AddmissionFormDialogComponent } from "./addmission-form/addmission-form-dialog/addmission-form-dialog.component";
-import { Component, Injector, ChangeDetectorRef, OnInit } from "@angular/core";
-import { finalize } from "rxjs/operators";
-import { BsModalService } from "ngx-bootstrap/modal";
+import { Component, Injector, ChangeDetectorRef, OnInit } from '@angular/core';
+import { finalize } from 'rxjs/operators';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { ChartType, ChartOptions } from 'chart.js';
+import { NgChartsModule } from 'ng2-charts';
+import { CommonModule } from '@angular/common';
+import { format } from 'date-fns';
+
 import {
   PagedListingComponentBase,
   PagedRequestDto,
-} from "shared/paged-listing-component-base";
+} from 'shared/paged-listing-component-base';
+
 import {
   AddmissionDto,
   AddmissionServiceProxy,
   BedDto,
   BedServiceProxy,
+  Dashboard,
   PatientDto,
   PatientServiceProxy,
-} from "./../../shared/service-proxies/service-proxies";
-import { SharedModule } from "@shared/shared.module";
-import { CommonModule } from "@angular/common";
-import { appModuleAnimation } from "@shared/animations/routerTransition";
+} from './../../shared/service-proxies/service-proxies';
+
+import { SharedModule } from '@shared/shared.module';
+import { AddmissionFormDialogComponent } from './addmission-form/addmission-form-dialog/addmission-form-dialog.component';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
 
 class PagedAddmissionRequestDto extends PagedRequestDto {
   keyword: string;
@@ -24,11 +31,11 @@ class PagedAddmissionRequestDto extends PagedRequestDto {
 }
 
 @Component({
-  selector: "app-addmission",
+  selector: 'app-addmission',
   standalone: true,
-  imports: [SharedModule, CommonModule],
-  templateUrl: "./addmission.component.html",
-  styleUrl: "./addmission.component.css",
+  imports: [SharedModule, CommonModule, NgChartsModule],
+  templateUrl: './addmission.component.html',
+  styleUrls: ['./addmission.component.css'],
   animations: [appModuleAnimation()],
 })
 export class AddmissionComponent
@@ -38,10 +45,29 @@ export class AddmissionComponent
   addmissions: AddmissionDto[] = [];
   beds: BedDto[] = [];
   patients: PatientDto[] = [];
+  dashboards: Dashboard[] = [];
+  dailyStats: any[] = [];
+  date?: string;
   isActive: boolean | null = null;
-  keyword = "";
+  keyword = '';
   advancedFiltersVisible = false;
-  sorting = "name asc";
+  sorting = 'name asc';
+  activeTab: 'dashboard' | 'list' = 'list';
+
+  // Pie Chart configuration
+  pieChartLabels: string[] = ['Admissions', 'Discharges'];
+  pieChartData = {
+  datasets: [
+    {
+      data: [10, 5],
+      backgroundColor: ['#36A2EB', '#FF6384'],
+    },
+  ],
+};
+  pieChartType: ChartType = 'pie';
+  pieChartOptions: ChartOptions = {
+    responsive: true,
+  };
 
   constructor(
     injector: Injector,
@@ -57,26 +83,54 @@ export class AddmissionComponent
   ngOnInit(): void {
     this.loadBeds();
     this.loadPatients();
+    this.loadDashboard();
+    this.loadDailyStats();
     this.getDataPage(1);
   }
 
+  loadDailyStats(): void {
+    this._addmissionService.getDailyStats().subscribe((result) => {
+      this.dailyStats = result;
+
+      const totalAdmissions = result.reduce((sum, r) => sum + r.admissions, 0);
+      const totalDischarges = result.reduce((sum, r) => sum + r.discharges, 0);
+this.pieChartData = {
+  datasets: [
+    {
+      data: [totalAdmissions, totalDischarges],
+      backgroundColor: ['#36A2EB', '#FF6384'],
+    },
+  ],
+};
+    });
+  }
+
+  loadDashboard(): void {
+    this._addmissionService.getAllDashboard().subscribe((result) => {
+      this.dashboards = result;
+      this.refresh();
+    });
+  }
+
   loadBeds(): void {
-    this._bedService.getAll("", undefined, 0, 1000).subscribe((result) => {
+    this._bedService.getAll('', undefined, 0, 1000).subscribe((result) => {
       this.beds = result.items;
     });
   }
+
   loadPatients(): void {
-    this._patientService.getAll("", undefined, 0, 1000).subscribe((result) => {
+    this._patientService.getAll('', undefined, 0, 1000).subscribe((result) => {
       this.patients = result.items;
     });
   }
+
   openPatientForm(addmission?: AddmissionDto): void {
     const dialog = this._modalService.show(AddmissionFormDialogComponent, {
-      class: "modal-lg",
+      class: 'modal-lg',
       initialState: {
         addmission: addmission ? Object.assign({}, addmission) : null,
-        patients: this.patients=this.patients,
-        beds:this.beds=this.beds,
+        patients: this.patients,
+        beds: this.beds,
       },
     });
 
@@ -87,7 +141,6 @@ export class AddmissionComponent
 
   createAddmission(): void {
     this.openPatientForm();
-
   }
 
   editAddmission(addmission: AddmissionDto): void {
@@ -101,7 +154,7 @@ export class AddmissionComponent
   }
 
   clearFilters(): void {
-    this.keyword = "";
+    this.keyword = '';
     this.getDataPage(1);
   }
 
@@ -126,15 +179,14 @@ export class AddmissionComponent
         this.cd.detectChanges();
       });
   }
-
   protected delete(addmission: AddmissionDto): void {
     abp.message.confirm(
-      this.l("Delete Warning Message", addmission.id),
+      this.l('Delete Warning Message', addmission.id),
       undefined,
       (result: boolean) => {
         if (result) {
           this._addmissionService.delete(addmission.id).subscribe(() => {
-            abp.notify.success(this.l("SuccessfullyDeleted"));
+            abp.notify.success(this.l('SuccessfullyDeleted'));
             this.getDataPage(1);
           });
         }
