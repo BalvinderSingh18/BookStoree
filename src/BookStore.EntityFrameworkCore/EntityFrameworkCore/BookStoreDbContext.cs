@@ -12,6 +12,7 @@ using BookStore.Cities;
 using BookStore.Beds;
 using BookStore.Patients;
 using BookStore.Addmissions;
+using BookStore.FileUploads;
 
 namespace BookStore.EntityFrameworkCore
 {
@@ -32,5 +33,6 @@ namespace BookStore.EntityFrameworkCore
         public DbSet<Bed> Beds { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Addmission> Addmissions { get; set; }
+        public DbSet<FileUpload> FileUploads { get; set; }
     }
 }
