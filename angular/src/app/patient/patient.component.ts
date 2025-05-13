@@ -13,7 +13,10 @@ import {
 import { SharedModule } from "@shared/shared.module";
 import { CommonModule } from "@angular/common";
 import { appModuleAnimation } from "@shared/animations/routerTransition";
-
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
+import { ChartOptions } from 'chart.js';
+import { NgChartsModule } from 'ng2-charts';
 class PagedPatientRequestDto extends PagedRequestDto {
   keyword: string;
   isActive: boolean | null;
@@ -22,7 +25,7 @@ class PagedPatientRequestDto extends PagedRequestDto {
 @Component({
   selector: 'app-patient',
   standalone: true,
-  imports: [SharedModule,CommonModule],
+  imports: [SharedModule,CommonModule,NgChartsModule],
   templateUrl: './patient.component.html',
   styleUrl: './patient.component.css',
   animations: [appModuleAnimation()],
@@ -33,7 +36,32 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto>imple
   keyword = "";
   advancedFiltersVisible = false;
   sorting = "name asc";
-
+  activeTab: 'dashboard' | 'list' = 'list';
+ public genderChartLabels: string[] = ["Male", "Female", "Other"];
+public genderChartData = {
+  labels: ["Male", "Female", "Other"],
+  datasets: [
+    {
+      label: 'Gender Distribution',
+      data: [0, 0, 0],
+      backgroundColor: ["#4E79A7", "#A0CBE8", "#F28E2B"]
+    }
+  ]
+};
+public genderChartType: string = 'pie';
+  public genderChartOptions: ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+  };
+  // public diseaseChartLabels: string[] = ["Abc", "MonkeyPox", "ChickenPox"];
+  // public diseaseChartData: any[] = [
+  //   { data: [0, 0, 0], backgroundColor: ["#4E79A7", "#A0CBE8", "#F28E2B"] },
+  // ];
+  // public diseaseChartType: "bar" = "bar"
+  // public diseaseChartOptions: ChartOptions = {
+  //   responsive: true,
+  //   maintainAspectRatio: false,
+  // };
   constructor(
     injector: Injector,
     private _patientService: PatientServiceProxy,
@@ -43,8 +71,35 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto>imple
     super(injector, cd);
   }
 
+  exportToExcel(): void {
+  const worksheet = XLSX.utils.json_to_sheet(this.patients.map(p => ({
+    Name: p.name,
+    Age: p.age,
+    Gender: this.getGenderString(p.gender),
+    PhoneNumber:p.phoneNumber,
+    Disease: p.disease,
+    Doctor:p.doctor
+   
+   
+  })));
+ 
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Patients');
+ 
+  const excelBuffer: any = XLSX.write(workbook, {
+    bookType: 'xlsx',
+    type: 'array'
+  });
+ 
+  const blob = new Blob([excelBuffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+ 
+  FileSaver.saveAs(blob, `Patient_List_${new Date().getTime()}.xlsx`);
+}
   ngOnInit(): void {
     this.getDataPage(1);
+    this.updateChart();
   }
   openPatientForm(patient?: PatientDto): void {
     const dialog = this._modalService.show(PatientFormDialogComponent, {
@@ -95,6 +150,7 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto>imple
       .pipe(finalize(() => finishedCallback()))
       .subscribe((result: any) => {
         this.patients = result.items;
+        this.updateChart();
         this.showPaging(result, pageNumber);
         this.cd.detectChanges();
       });
@@ -114,6 +170,42 @@ export class PatientComponent extends PagedListingComponentBase<PatientDto>imple
       }
     );
   }
+updateChart(): void {
+  this._patientService.getAllChart(
+    undefined,
+    undefined,
+    undefined,
+    undefined
+  ).subscribe((result) => {
+    const genderCounts = { male: 0, female: 0, other: 0 };
+
+    result.forEach((g) => {
+      const gender = g.gender.toLowerCase();
+      if (gender === "male") genderCounts.male = g.count;
+      else if (gender === "female") genderCounts.female = g.count;
+      else genderCounts.other = g.count;
+    });
+
+    this.genderChartData = {
+      labels: ["Male", "Female", "Other"],
+      datasets: [
+        {
+          label: 'Gender Distribution',
+          data: [
+            genderCounts.male,
+            genderCounts.female,
+            genderCounts.other,
+          ],
+          backgroundColor: ["#4E79A7", "#A0CBE8", "#F28E2B"]
+        }
+      ]
+    };
+
+    this.cd.detectChanges();
+  });
+}
+
+ 
 
   getGenderString(gender: number): string {
     switch (gender) {

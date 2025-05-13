@@ -13,6 +13,7 @@ namespace BookStore.Patients
     public interface IPatientAppService:IApplicationService
     {
         Task<PagedResultDto<PatientDto>> GetAll(GetAllAccountsInput getAllAccountsInput);
+        Task<List<GenderStatusPieChartDto>> GetAllChart(GetAllAccountsInput getAllAccountInput);
         Task CreateAsync(CreatePatientDto input);
         Task UpdateAsync(CreatePatientDto input);
         Task DeleteAsync(EntityDto<int> input);

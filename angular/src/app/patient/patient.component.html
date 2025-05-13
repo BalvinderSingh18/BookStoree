@@ -1,26 +1,73 @@
 <div [@routerTransition]>
-    <section class="content-header">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-6">
-            <h1>{{ "Patients" | localize }}</h1>
-          </div>
-          <div class="col-6 text-right">
-            <a href="javascript:;" class="btn bg-blue" (click)="createPatient()">
-              <i class="fa fa-plus-square"></i>
-              {{ "Create" | localize }}
-            </a>
-          </div>
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-6">
+          <h1>{{ "Patients" | localize }}</h1>
+        </div>
+        <div class="col-6 text-right">
+          <button class="btn btn-success m-2" (click)="exportToExcel()">
+            <i class="fa fa-file-excel"></i>
+            {{ "ExportToExcel" | localize }}
+          </button>
+          <a href="javascript:;" class="btn bg-blue" (click)="createPatient()">
+            <i class="fa fa-plus-square"></i>
+            {{ "Create" | localize }}
+          </a>
         </div>
       </div>
-    </section>
-  
-    <section class="content px-2">
-      <div class="container-fluid">
-        <div class="card">
-          <!-- Search and Filters -->
-          <div class="card-header">
-            <div class="row">
+    </div>
+  </section>
+
+  <section class="content px-2">
+    <div class="container-fluid">
+      <div class="card">
+        <div class="card-header">
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                [class.active]="activeTab === 'dashboard'"
+                (click)="activeTab = 'dashboard'"
+                href="javascript:;"
+              >
+                {{ "Dashboard" | localize }}
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                [class.active]="activeTab === 'list'"
+                (click)="activeTab = 'list'"
+                href="javascript:;"
+              >
+                {{ "List" | localize }}
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card-body">
+          <!-- Dashboard Tab -->
+          <div *ngIf="activeTab === 'dashboard'">
+            <!-- Add chart or summary content here -->
+              <div class="container mt-4">
+             <h4 class="text-center">Patients Summary</h4>
+          <div style="width: 400px; margin: auto;">
+  <canvas
+    baseChart
+    [data]="genderChartData"
+    [type]="genderChartType"
+    [options]="genderChartOptions">
+  </canvas>
+          </div>
+    </div>
+          </div>
+
+          <!-- List Tab -->
+          <div *ngIf="activeTab === 'list'">
+            <!-- Search and Filters -->
+            <div class="row mb-3">
               <div class="col-md-6">&emsp;</div>
               <div class="col-md-6">
                 <div class="input-group">
@@ -57,9 +104,9 @@
                 </div>
               </div>
             </div>
-  
+
             <!-- Advanced Filters -->
-            <div *ngIf="advancedFiltersVisible" class="card mb-0 mt-2">
+            <div *ngIf="advancedFiltersVisible" class="card mb-3">
               <div class="card-body">
                 <form class="form-horizontal">
                   <div class="row">
@@ -121,11 +168,7 @@
                 </form>
               </div>
               <div class="card-footer">
-                <button
-                  type="button"
-                  class="btn bg-blue"
-                  (click)="getDataPage(1)"
-                >
+                <button type="button" class="btn bg-blue" (click)="getDataPage(1)">
                   {{ "Search" | localize }}
                 </button>
                 <button
@@ -137,107 +180,38 @@
                 </button>
               </div>
             </div>
-          </div>
-  
-          <!-- Table -->
-          <div class="card-body">
+
+            <!-- Table -->
             <div class="table-responsive">
-              <table
-                class="table table-striped table-bordered"
-                [busy]="isTableLoading"
-              >
+              <table class="table table-striped table-bordered" [busy]="isTableLoading">
                 <thead class="bg-light">
                   <tr>
                     <th (click)="changeSorting('name')" style="cursor: pointer">
                       {{ "Name" | localize }}
-                      <i
-                        class="ml-1 fas"
+                      <i class="ml-1 fas"
                         [ngClass]="{
                           'fa-arrow-up text-primary': sorting === 'name asc',
                           'fa-arrow-down text-primary': sorting === 'name desc',
-                          'fa-sort text-muted':
-                            sorting !== 'name asc' && sorting !== 'name desc'
+                          'fa-sort text-muted': sorting !== 'name asc' && sorting !== 'name desc'
                         }"
                       ></i>
                     </th>
-                    <th
-                      (click)="changeSorting('name')"
-                      style="cursor: pointer"
-                    >
-                      {{ "Age" | localize }}
-                      <i
-                        class="ml-1 fas"
-                        [ngClass]="{
-                          'fa-arrow-up text-primary': sorting === 'name asc',
-                          'fa-arrow-down text-primary': sorting === 'name desc',
-                          'fa-sort text-muted':
-                            sorting !== 'name asc' && sorting !== 'name desc'
-                        }"
-                      ></i>
-                    </th>
-                    <th (click)="changeSorting('gender')" style="cursor: pointer">
-                      {{ "Gender" | localize }}
-                      <i
-                        class="ml-1 fas"
-                        [ngClass]="{
-                          'fa-arrow-up text-primary': sorting === 'name asc',
-                          'fa-arrow-down text-primary': sorting === 'name desc',
-                          'fa-sort text-muted':
-                            sorting !== 'name asc' && sorting !== 'name desc'
-                        }"
-                      ></i>
-                    </th>
-                    <th (click)="changeSorting('name')" style="cursor: pointer">
-                        {{ "Phone Number" | localize }}
-                        <i
-                          class="ml-1 fas"
-                          [ngClass]="{
-                            'fa-arrow-up text-primary': sorting === 'name asc',
-                            'fa-arrow-down text-primary': sorting === 'name desc',
-                            'fa-sort text-muted':
-                              sorting !== 'name asc' && sorting !== 'name desc'
-                          }"
-                        ></i>
-                      </th>
-                      <th (click)="changeSorting('name')" style="cursor: pointer">
-                        {{ "Disease" | localize }}
-                        <i
-                          class="ml-1 fas"
-                          [ngClass]="{
-                            'fa-arrow-up text-primary': sorting === 'name asc',
-                            'fa-arrow-down text-primary': sorting === 'name desc',
-                            'fa-sort text-muted':
-                              sorting !== 'name asc' && sorting !== 'name desc'
-                          }"
-                        ></i>
-                      </th>
-                      <th (click)="changeSorting('name')" style="cursor: pointer">
-                        {{ "Doctor" | localize }}
-                        <i
-                          class="ml-1 fas"
-                          [ngClass]="{
-                            'fa-arrow-up text-primary': sorting === 'name asc',
-                            'fa-arrow-down text-primary': sorting === 'name desc',
-                            'fa-sort text-muted':
-                              sorting !== 'name asc' && sorting !== 'name desc'
-                          }"
-                        ></i>
-                      </th>
+                    <th>{{ "Age" | localize }}</th>
+                    <th>{{ "Gender" | localize }}</th>
+                    <th>{{ "Phone Number" | localize }}</th>
+                    <th>{{ "Disease" | localize }}</th>
+                    <th>{{ "Doctor" | localize }}</th>
                     <th style="width: 310px">{{ "Actions" | localize }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
-                    *ngFor="
-                      let patient of patients
-                        | paginate
-                          : {
-                              id: 'server',
-                              itemsPerPage: pageSize,
-                              currentPage: pageNumber,
-                              totalItems: totalItems
-                            }
-                    "
+                    *ngFor="let patient of patients | paginate: {
+                      id: 'server',
+                      itemsPerPage: pageSize,
+                      currentPage: pageNumber,
+                      totalItems: totalItems
+                    }"
                   >
                     <td>{{ patient.name }}</td>
                     <td>{{ patient.age }}</td>
@@ -265,40 +239,34 @@
                 </tbody>
               </table>
             </div>
-          </div>
-  
-          <!-- Footer -->
-          <div class="card-footer table-card-footer bg-light border-top">
-            <div class="row">
-              <div class="col-sm-4 col-12 text-sm-left text-center">
-                <button class="btn btn-secondary" (click)="refresh()">
-                  <i class="fas fa-redo-alt"></i>
-                </button>
-              </div>
-              <div class="col-sm-4 col-12 text-center">
-                <p class="mb-0 my-2">
-                  {{ "TotalRecordsCount" | localize : totalItems }}
-                </p>
-              </div>
-              <div class="col-sm-4 col-12">
-                <div class="float-sm-right m-auto">
-                  <abp-pagination-controls
-                    id="server"
-                    (pageChange)="getDataPage($event)"
-                  >
-                  </abp-pagination-controls>
+
+            <!-- Footer -->
+            <div class="card-footer table-card-footer bg-light border-top">
+              <div class="row">
+                <div class="col-sm-4 col-12 text-sm-left text-center">
+                  <button class="btn btn-secondary" (click)="refresh()">
+                    <i class="fas fa-redo-alt"></i>
+                  </button>
+                </div>
+                <div class="col-sm-4 col-12 text-center">
+                  <p class="mb-0 my-2">
+                    {{ "TotalRecordsCount" | localize : totalItems }}
+                  </p>
+                </div>
+                <div class="col-sm-4 col-12">
+                  <div class="float-sm-right m-auto">
+                    <abp-pagination-controls
+                      id="server"
+                      (pageChange)="getDataPage($event)"
+                    >
+                    </abp-pagination-controls>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </div> <!-- End of List Tab -->
+        </div> <!-- End of card-body -->
       </div>
-    </section>
-  </div>
-
-
-
-
-
-
-  
+    </div>
+  </section>
+</div>

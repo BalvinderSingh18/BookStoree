@@ -88,6 +88,23 @@ namespace BookStore.Patients
             return new PagedResultDto<PatientDto>(totalCount, result); ;
         }
 
+        public async Task<List<GenderStatusPieChartDto>> GetAllChart(GetAllAccountsInput input)
+        {
+                var data = await _patientRepository.GetAll()
+                    .GroupBy(b => new { b.Gender })
+                    .Select(g => new GenderStatusPieChartDto
+                    {
+                        Gender = g.Key.Gender.ToString(),
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+
+                return data;
+
+            // Otherwise, handle regular paged list request (for bed table)
+            throw new NotImplementedException("Regular list not implemented here.");
+        }
+
         public async Task UpdateAsync(CreatePatientDto input)
         {
             try
