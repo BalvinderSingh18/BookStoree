@@ -12,6 +12,8 @@ namespace BookStore.Addmissions
 {
     public interface IAddmissionAppService:IApplicationService
     {
+        Task<List<Dashboard>> GetAllDashboard();
+        Task<List<DailyStatDto>> GetDailyStats();
         Task<PagedResultDto<AddmissionDto>> GetAll(GetAllAccountsInput getAllAccountsInput);
         Task CreateAsync(CreateAddmissionDto input);
         Task UpdateAsync(CreateAddmissionDto input);

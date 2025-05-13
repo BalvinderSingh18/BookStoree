@@ -378,6 +378,122 @@ export class AddmissionServiceProxy {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * @return OK
+     */
+    getAllDashboard(): Observable<Dashboard[]> {
+        let url_ = this.baseUrl + "/api/services/app/Addmission/GetAllDashboard";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllDashboard(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllDashboard(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Dashboard[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Dashboard[]>;
+        }));
+    }
+
+    protected processGetAllDashboard(response: HttpResponseBase): Observable<Dashboard[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(Dashboard.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getDailyStats(): Observable<DailyStatDto[]> {
+        let url_ = this.baseUrl + "/api/services/app/Addmission/GetDailyStats";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDailyStats(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDailyStats(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DailyStatDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DailyStatDto[]>;
+        }));
+    }
+
+    protected processGetDailyStats(response: HttpResponseBase): Observable<DailyStatDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(DailyStatDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable()
@@ -5433,6 +5549,116 @@ export interface ICreateUserDto {
     isActive: boolean;
     roleNames: string[] | undefined;
     password: string;
+}
+
+export class DailyStatDto implements IDailyStatDto {
+    date: moment.Moment;
+    admissions: number;
+    discharges: number;
+
+    constructor(data?: IDailyStatDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? moment(_data["date"].toString()) : <any>undefined;
+            this.admissions = _data["admissions"];
+            this.discharges = _data["discharges"];
+        }
+    }
+
+    static fromJS(data: any): DailyStatDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DailyStatDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["admissions"] = this.admissions;
+        data["discharges"] = this.discharges;
+        return data;
+    }
+
+    clone(): DailyStatDto {
+        const json = this.toJSON();
+        let result = new DailyStatDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDailyStatDto {
+    date: moment.Moment;
+    admissions: number;
+    discharges: number;
+}
+
+export class Dashboard implements IDashboard {
+    totalBeds: number;
+    availableBeds: number;
+    occupiedBeds: number;
+    currentAdmittedPatients: number;
+    lowAvailabilityAlert: boolean;
+
+    constructor(data?: IDashboard) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalBeds = _data["totalBeds"];
+            this.availableBeds = _data["availableBeds"];
+            this.occupiedBeds = _data["occupiedBeds"];
+            this.currentAdmittedPatients = _data["currentAdmittedPatients"];
+            this.lowAvailabilityAlert = _data["lowAvailabilityAlert"];
+        }
+    }
+
+    static fromJS(data: any): Dashboard {
+        data = typeof data === 'object' ? data : {};
+        let result = new Dashboard();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalBeds"] = this.totalBeds;
+        data["availableBeds"] = this.availableBeds;
+        data["occupiedBeds"] = this.occupiedBeds;
+        data["currentAdmittedPatients"] = this.currentAdmittedPatients;
+        data["lowAvailabilityAlert"] = this.lowAvailabilityAlert;
+        return data;
+    }
+
+    clone(): Dashboard {
+        const json = this.toJSON();
+        let result = new Dashboard();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDashboard {
+    totalBeds: number;
+    availableBeds: number;
+    occupiedBeds: number;
+    currentAdmittedPatients: number;
+    lowAvailabilityAlert: boolean;
 }
 
 export class FlatPermissionDto implements IFlatPermissionDto {
