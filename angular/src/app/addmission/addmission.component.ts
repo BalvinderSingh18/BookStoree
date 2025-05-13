@@ -59,7 +59,7 @@ export class AddmissionComponent
   barChartOptions: ChartOptions = {
     responsive: true,
   };
-  barChartLabels: Label[] = [];
+barChartLabels: (string | number)[] = [];
   barChartType: ChartType = 'bar';
   barChartLegend = true;
 
