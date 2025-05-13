@@ -1,11 +1,11 @@
 import { Component, Injector, ChangeDetectorRef, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { ChartConfiguration, ChartType,ChartOptions,  } from 'chart.js';
+import { ChartType, ChartOptions } from 'chart.js';
 import { NgChartsModule } from 'ng2-charts';
 import { CommonModule } from '@angular/common';
 import { format } from 'date-fns';
-import { Label } from 'ng2-charts';
+
 import {
   PagedListingComponentBase,
   PagedRequestDto,
@@ -16,7 +16,6 @@ import {
   AddmissionServiceProxy,
   BedDto,
   BedServiceProxy,
-  DailyStatDto,
   Dashboard,
   PatientDto,
   PatientServiceProxy,
@@ -36,7 +35,7 @@ class PagedAddmissionRequestDto extends PagedRequestDto {
   standalone: true,
   imports: [SharedModule, CommonModule, NgChartsModule],
   templateUrl: './addmission.component.html',
-  styleUrls: ['./addmission.component.css'], // ✅ Fixed typo
+  styleUrls: ['./addmission.component.css'],
   animations: [appModuleAnimation()],
 })
 export class AddmissionComponent
@@ -55,25 +54,16 @@ export class AddmissionComponent
   sorting = 'name asc';
   activeTab: 'dashboard' | 'list' = 'list';
 
-  // Bar Chart configuration
-  barChartOptions: ChartOptions = {
-    responsive: true,
-  };
-barChartLabels: (string | number)[] = [];
-  barChartType: ChartType = 'bar';
-  barChartLegend = true;
-
-  barChartData = {
-    labels: this.barChartLabels,
-    datasets: [
-      { data: [], label: 'Admissions', backgroundColor: '#42A5F5' },
-      { data: [], label: 'Discharges', backgroundColor: '#66BB6A' }
-    ]
-  };
-
   // Pie Chart configuration
-  pieChartLabels: Label[] = ['Admissions', 'Discharges'];
-  pieChartData: number[] = [];
+  pieChartLabels: string[] = ['Admissions', 'Discharges'];
+  pieChartData = {
+  datasets: [
+    {
+      data: [10, 5],
+      backgroundColor: ['#36A2EB', '#FF6384'],
+    },
+  ],
+};
   pieChartType: ChartType = 'pie';
   pieChartOptions: ChartOptions = {
     responsive: true,
@@ -97,21 +87,21 @@ barChartLabels: (string | number)[] = [];
     this.loadDailyStats();
     this.getDataPage(1);
   }
-    loadDailyStats(): void {
+
+  loadDailyStats(): void {
     this._addmissionService.getDailyStats().subscribe((result) => {
       this.dailyStats = result;
 
-      // Bar Chart setup
-      this.barChartData.labels = result.map((r) =>
-        r?.date ? format(r.date.toDate(), 'dd MMM') : 'Unknown'
-      );
-      this.barChartData.datasets[0].data = result.map((r) => r.admissions);
-      this.barChartData.datasets[1].data = result.map((r) => r.discharges);
-
-      // Pie Chart setup
       const totalAdmissions = result.reduce((sum, r) => sum + r.admissions, 0);
       const totalDischarges = result.reduce((sum, r) => sum + r.discharges, 0);
-      this.pieChartData = [totalAdmissions, totalDischarges];
+this.pieChartData = {
+  datasets: [
+    {
+      data: [totalAdmissions, totalDischarges],
+      backgroundColor: ['#36A2EB', '#FF6384'],
+    },
+  ],
+};
     });
   }
 
@@ -121,7 +111,6 @@ barChartLabels: (string | number)[] = [];
       this.refresh();
     });
   }
-
 
   loadBeds(): void {
     this._bedService.getAll('', undefined, 0, 1000).subscribe((result) => {
@@ -190,7 +179,6 @@ barChartLabels: (string | number)[] = [];
         this.cd.detectChanges();
       });
   }
-
   protected delete(addmission: AddmissionDto): void {
     abp.message.confirm(
       this.l('Delete Warning Message', addmission.id),

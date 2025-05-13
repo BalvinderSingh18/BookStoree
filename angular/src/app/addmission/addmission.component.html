@@ -67,16 +67,20 @@
                 </tr>
               </tbody>
             </table>
-          <div class="chart-section">
-          <h2>Total Admissions vs Discharges</h2>
-          <canvas
+              <div class="container mt-4">
+             <h4 class="text-center">Admissions Summary</h4>
+          <div style="width: 400px; margin: auto;">
+             <canvas
             baseChart
-                [data]="pieChartData"
-              [labels]="pieChartLabels"
-             [options]="pieChartOptions"
-              [chartType]="pieChartType">
-            </canvas>
-            </div>
+            #pieChart
+            [data]="pieChartData"
+            [labels]="pieChartLabels"
+            [type]="pieChartType"
+            [options]="pieChartOptions">
+         </canvas>
+          </div>
+    </div>
+<!-- Optional: Add list or filters section here -->
           </div>
         </div>
       </div>
