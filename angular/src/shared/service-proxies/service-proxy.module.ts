@@ -17,6 +17,8 @@ import * as ApiServiceProxies from "./service-proxies";
     ApiServiceProxies.PatientServiceProxy,
     ApiServiceProxies.AddmissionServiceProxy,
     ApiServiceProxies.FileUploadServiceProxy,
+    ApiServiceProxies.DepartmentServiceProxy,
+    ApiServiceProxies.EmployeeServiceProxy,
     ApiServiceProxies.SessionServiceProxy,
     ApiServiceProxies.TenantServiceProxy,
     ApiServiceProxies.UserServiceProxy,

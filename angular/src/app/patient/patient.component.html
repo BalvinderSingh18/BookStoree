@@ -54,15 +54,26 @@
               <div class="container mt-4">
              <h4 class="text-center">Patients Summary</h4>
           <div style="width: 400px; margin: auto;">
-  <canvas
-    baseChart
-    [data]="genderChartData"
-    [type]="genderChartType"
-    [options]="genderChartOptions">
-  </canvas>
+            <canvas
+              baseChart
+              [data]="genderChartData"
+              [type]="genderChartType"
+              [options]="genderChartOptions">
+            </canvas>
           </div>
-    </div>
           </div>
+          <!-- <div class="container mt-4">
+          <h4 class="text-center">Disease Summary</h4>
+          <div style="width: 400px; margin: auto;">
+         <canvas
+           baseChart
+          [data]="diseaseChartData"
+          [type]="diseaseChartType"
+          [options]="diseaseChartOptions">
+          </canvas>
+          </div>
+          </div> -->
+        </div>
 
           <!-- List Tab -->
           <div *ngIf="activeTab === 'list'">

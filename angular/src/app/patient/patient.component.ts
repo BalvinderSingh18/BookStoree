@@ -53,15 +53,25 @@ public genderChartType: string = 'pie';
     responsive: true,
     maintainAspectRatio: false,
   };
-  // public diseaseChartLabels: string[] = ["Abc", "MonkeyPox", "ChickenPox"];
-  // public diseaseChartData: any[] = [
+
+  public diseaseChartLabels: string[] = ["Abc", "Fever", "Cold"];
+  public diseaseChartData={
+  
   //   { data: [0, 0, 0], backgroundColor: ["#4E79A7", "#A0CBE8", "#F28E2B"] },
-  // ];
-  // public diseaseChartType: "bar" = "bar"
-  // public diseaseChartOptions: ChartOptions = {
-  //   responsive: true,
-  //   maintainAspectRatio: false,
-  // };
+    labels: ["Abc", "Fever", "Cold"],
+  datasets: [
+    {
+      label: 'Disease Distribution',
+      data: [0, 0, 0],
+      backgroundColor: ["#4E79A7", "#A0CBE8", "#F28E2B"]
+    }
+  ]
+}
+public diseaseChartType: string= "bar";
+  public diseaseChartOptions: ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+  };
   constructor(
     injector: Injector,
     private _patientService: PatientServiceProxy,
@@ -178,13 +188,18 @@ updateChart(): void {
     undefined
   ).subscribe((result) => {
     const genderCounts = { male: 0, female: 0, other: 0 };
-
+    // const diseaseCounts = { abc: 0, fever: 0, cold: 0 };
     result.forEach((g) => {
       const gender = g.gender.toLowerCase();
       if (gender === "male") genderCounts.male = g.count;
       else if (gender === "female") genderCounts.female = g.count;
       else genderCounts.other = g.count;
     });
+    // result.forEach((d)=>{
+    // if (d.disease?.toLowerCase() === 'abc') diseaseCounts.abc++;
+    // else if (d.disease?.toLowerCase() === 'fever') diseaseCounts.fever++;
+    // else if (d.disease?.toLowerCase() === 'cold') diseaseCounts.cold++;
+    // })
 
     this.genderChartData = {
       labels: ["Male", "Female", "Other"],
@@ -200,6 +215,20 @@ updateChart(): void {
         }
       ]
     };
+    //     this.diseaseChartData = {
+    //   labels: ["Abc", "Fever", "Cold"],
+    //   datasets: [
+    //     {
+    //       label: 'Disease Distribution',
+    //       data: [
+    //         diseaseCounts.abc,
+    //         diseaseCounts.fever,
+    //         diseaseCounts.cold,
+    //       ],
+    //       backgroundColor: ["#4E79A7", "#A0CBE8", "#F28E2B"]
+    //     }
+    //   ]
+    // };
 
     this.cd.detectChanges();
   });

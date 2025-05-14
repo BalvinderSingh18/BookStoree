@@ -12,7 +12,8 @@ import { RouterModule } from "@angular/router";
 import { AppRouteGuard } from "@shared/auth/auth-route-guard";
 import { AppComponent } from "./app.component";
 import { FileuploadComponent } from "./fileupload/fileupload.component";
-
+import{DepartmentComponent} from "./department/department.component"
+import{EmployeeComponent} from "./employee/employee.component"
 
 @NgModule({
   imports: [
@@ -70,7 +71,8 @@ import { FileuploadComponent } from "./fileupload/fileupload.component";
           {path:"patient",component:PatientComponent},
           {path:"addmission",component:AddmissionComponent},
           {path:"fileupload",component:FileuploadComponent},
-
+          {path:"department",component:DepartmentComponent},
+          {path:"employee",component:EmployeeComponent},
         ],
       },
     ]),

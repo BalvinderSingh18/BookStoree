@@ -1,0 +1,192 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #employeeForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="
+      isEditMode ? ('EditEmployee' | localize) : ('CreateNewEmployee' | localize)
+    "
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body">
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="Name">
+        {{ "Name" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="Name"
+          id="Name"
+          maxlength="20"
+          placeholder="Enter Name"
+          pattern="^[a-zA-Z ]+$"
+          required
+          [(ngModel)]="employee.name"
+          #NameModel="ngModel"
+          #NameEl
+        />
+        <div
+          *ngIf="NameModel.invalid && NameModel.touched"
+          class="text-danger"
+        >
+          <div *ngIf="NameModel.errors?.pattern">
+            Only alphabets and spaces are allowed.
+          </div>
+        </div>
+        <abp-validation-summary
+          [control]="NameModel"
+          [controlEl]="NameEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+        <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="Address">
+        {{ "Address" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="Address"
+          id="Address"
+          maxlength="50"
+          placeholder="Enter Name"
+          pattern="^[a-zA-Z0-9, ]+$"
+          required
+          [(ngModel)]="employee.address"
+          #AddressModel="ngModel"
+          #AddressEl
+        />
+        <div
+          *ngIf="AddressModel.invalid && AddressModel.touched"
+          class="text-danger"
+        >
+          <div *ngIf="AddressModel.errors?.pattern">
+            Only alphabets,Numbers,Commas and spaces are allowed.
+          </div>
+        </div>
+        <abp-validation-summary
+          [control]="AddressModel"
+          [controlEl]="AddressEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+      <div class="form-group row required">
+     <label class="col-md-3 col-form-label" for="PH">
+      {{ "Phone Number" | localize }}
+     </label>
+     <div class="col-md-9">
+    <input
+      type="text"
+      class="form-control"
+      name="PH"
+      id="PH"
+      placeholder="Enter phone Number"
+      required
+      pattern="^\+?[0-9]{1,15}$"
+      maxlength="15"
+      [(ngModel)]="employee.phoneNumber"
+      #PHModel="ngModel"
+      #PhEl
+    />
+    <div
+    *ngIf="PHModel.invalid && PHModel.touched"
+    class="text-danger"
+    >
+    <div *ngIf="PHModel.errors?.pattern">
+    Only Numbers and + are allowed.
+    </div>
+    </div>
+    <div *ngIf="phoneNumberExists" class="text-danger">
+      Phone number already exists. Please use a different one.
+    </div>
+    <abp-validation-summary
+      [control]="PHModel"
+      [controlEl]="PhEl"
+    ></abp-validation-summary>
+  </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="Gender">
+        {{ "Gender" | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          [(ngModel)]="selectedGender"
+          class="form-control"
+          id="Gender"
+          name="Gender"
+          required
+          #GenderModel="ngModel"
+          #GenderEl
+        >
+          <option [ngValue]="undefined" disabled>Select Gender</option>
+          <option [ngValue]="0">Male</option>
+          <option [ngValue]="1">Female</option>
+          <option [ngValue]="2">Others</option>
+        </select>
+        <abp-validation-summary
+          [control]="GenderModel"
+          [controlEl]="GenderEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="Dob">
+        {{ "Date-of-birth" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="date"
+          class="form-control"
+          name="Dob"
+          id="Dob"
+          required
+          [(ngModel)]="selectedDate"
+          #DobModel="ngModel"
+          #DobEl
+        />
+        <abp-validation-summary
+          [control]="DobModel"
+          [controlEl]="DobEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+        <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="Department">
+        {{ "Department" | localize }}
+      </label>
+      <div class="col-md-9">
+        <select
+          class="form-control"
+          id="Department"
+          name="Department"
+          required
+          [(ngModel)]="employee.departmentId"
+          #departmentModel="ngModel"
+          #departmentEl
+        >
+          <option [ngValue]="undefined" disabled>Select Department</option>
+          <option *ngFor="let department of departments" [value]="department.id">
+            {{ department.name }}
+          </option>
+        </select>
+        <abp-validation-summary
+          [control]="departmentModel"
+          [controlEl]="departmentEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+  </div>
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!employeeForm.form.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>
+

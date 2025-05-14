@@ -13,6 +13,10 @@ using BookStore.Beds;
 using BookStore.Patients;
 using BookStore.Addmissions;
 using BookStore.FileUploads;
+using BookStore.Departments;
+using BookStore.Employees;
+using BookStore.Deals;
+using BookStore.Tasks;
 
 namespace BookStore.EntityFrameworkCore
 {
@@ -34,5 +38,9 @@ namespace BookStore.EntityFrameworkCore
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Addmission> Addmissions { get; set; }
         public DbSet<FileUpload> FileUploads { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Deal> Deals { get; set; }
+        public DbSet<Task> Tasks { get; set; }
     }
 }

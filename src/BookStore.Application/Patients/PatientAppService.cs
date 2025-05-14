@@ -95,6 +95,7 @@ namespace BookStore.Patients
                     .Select(g => new GenderStatusPieChartDto
                     {
                         Gender = g.Key.Gender.ToString(),
+                        //Disease=g.Key.Disease.ToString(),
                         Count = g.Count()
                     })
                     .ToListAsync();
