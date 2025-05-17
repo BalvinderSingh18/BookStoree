@@ -1736,6 +1736,258 @@ export class CourseServiceProxy {
 }
 
 @Injectable()
+export class DealServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateDealDto | undefined): Observable<DealWithTasksDto> {
+        let url_ = this.baseUrl + "/api/services/app/Deal/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DealWithTasksDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DealWithTasksDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<DealWithTasksDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DealWithTasksDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param type (optional) 
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(type: string | undefined, id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/Deal/Delete?";
+        if (type === null)
+            throw new Error("The parameter 'type' cannot be null.");
+        else if (type !== undefined)
+            url_ += "Type=" + encodeURIComponent("" + type) + "&";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(keyword: string | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<DealWithTasksDtoPagedResultDto> {
+        let url_ = this.baseUrl + "/api/services/app/Deal/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DealWithTasksDtoPagedResultDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DealWithTasksDtoPagedResultDto>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<DealWithTasksDtoPagedResultDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DealWithTasksDtoPagedResultDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: CreateDealDto | undefined): Observable<DealWithTasksDto> {
+        let url_ = this.baseUrl + "/api/services/app/Deal/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DealWithTasksDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DealWithTasksDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<DealWithTasksDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DealWithTasksDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class DepartmentServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -6012,6 +6264,69 @@ export interface ICreateCourseDto {
     description: string | undefined;
 }
 
+export class CreateDealDto implements ICreateDealDto {
+    id: number;
+    name: string | undefined;
+    createdDate: moment.Moment;
+    tasks: TaskDto[] | undefined;
+
+    constructor(data?: ICreateDealDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.createdDate = _data["createdDate"] ? moment(_data["createdDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["tasks"])) {
+                this.tasks = [] as any;
+                for (let item of _data["tasks"])
+                    this.tasks.push(TaskDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateDealDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateDealDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.tasks)) {
+            data["tasks"] = [];
+            for (let item of this.tasks)
+                data["tasks"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): CreateDealDto {
+        const json = this.toJSON();
+        let result = new CreateDealDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateDealDto {
+    id: number;
+    name: string | undefined;
+    createdDate: moment.Moment;
+    tasks: TaskDto[] | undefined;
+}
+
 export class CreateDepartmentDto implements ICreateDepartmentDto {
     id: number;
     name: string | undefined;
@@ -6683,6 +6998,124 @@ export interface IDashboard {
     occupiedBeds: number;
     currentAdmittedPatients: number;
     lowAvailabilityAlert: boolean;
+}
+
+export class DealWithTasksDto implements IDealWithTasksDto {
+    id: number;
+    name: string | undefined;
+    createdDate: moment.Moment;
+    tasks: TaskDto[] | undefined;
+
+    constructor(data?: IDealWithTasksDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.createdDate = _data["createdDate"] ? moment(_data["createdDate"].toString()) : <any>undefined;
+            if (Array.isArray(_data["tasks"])) {
+                this.tasks = [] as any;
+                for (let item of _data["tasks"])
+                    this.tasks.push(TaskDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): DealWithTasksDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DealWithTasksDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        if (Array.isArray(this.tasks)) {
+            data["tasks"] = [];
+            for (let item of this.tasks)
+                data["tasks"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): DealWithTasksDto {
+        const json = this.toJSON();
+        let result = new DealWithTasksDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDealWithTasksDto {
+    id: number;
+    name: string | undefined;
+    createdDate: moment.Moment;
+    tasks: TaskDto[] | undefined;
+}
+
+export class DealWithTasksDtoPagedResultDto implements IDealWithTasksDtoPagedResultDto {
+    items: DealWithTasksDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IDealWithTasksDtoPagedResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(DealWithTasksDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): DealWithTasksDtoPagedResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DealWithTasksDtoPagedResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): DealWithTasksDtoPagedResultDto {
+        const json = this.toJSON();
+        let result = new DealWithTasksDtoPagedResultDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDealWithTasksDtoPagedResultDto {
+    items: DealWithTasksDto[] | undefined;
+    totalCount: number;
 }
 
 export class DepartmentDto implements IDepartmentDto {
@@ -8491,6 +8924,73 @@ export class StudentDtoPagedResultDto implements IStudentDtoPagedResultDto {
 export interface IStudentDtoPagedResultDto {
     items: StudentDto[] | undefined;
     totalCount: number;
+}
+
+export class TaskDto implements ITaskDto {
+    id: number;
+    task_Number: string | undefined;
+    title: string | undefined;
+    date_From: moment.Moment;
+    to_Date: moment.Moment;
+    description: string | undefined;
+    dealId: number;
+
+    constructor(data?: ITaskDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.task_Number = _data["task_Number"];
+            this.title = _data["title"];
+            this.date_From = _data["date_From"] ? moment(_data["date_From"].toString()) : <any>undefined;
+            this.to_Date = _data["to_Date"] ? moment(_data["to_Date"].toString()) : <any>undefined;
+            this.description = _data["description"];
+            this.dealId = _data["dealId"];
+        }
+    }
+
+    static fromJS(data: any): TaskDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TaskDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["task_Number"] = this.task_Number;
+        data["title"] = this.title;
+        data["date_From"] = this.date_From ? this.date_From.toISOString() : <any>undefined;
+        data["to_Date"] = this.to_Date ? this.to_Date.toISOString() : <any>undefined;
+        data["description"] = this.description;
+        data["dealId"] = this.dealId;
+        return data;
+    }
+
+    clone(): TaskDto {
+        const json = this.toJSON();
+        let result = new TaskDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ITaskDto {
+    id: number;
+    task_Number: string | undefined;
+    title: string | undefined;
+    date_From: moment.Moment;
+    to_Date: moment.Moment;
+    description: string | undefined;
+    dealId: number;
 }
 
 export enum TenantAvailabilityState {

@@ -14,6 +14,7 @@ import { AppComponent } from "./app.component";
 import { FileuploadComponent } from "./fileupload/fileupload.component";
 import{DepartmentComponent} from "./department/department.component"
 import{EmployeeComponent} from "./employee/employee.component"
+import{DealComponent} from "./deal/deal.component";
 
 @NgModule({
   imports: [
@@ -73,6 +74,7 @@ import{EmployeeComponent} from "./employee/employee.component"
           {path:"fileupload",component:FileuploadComponent},
           {path:"department",component:DepartmentComponent},
           {path:"employee",component:EmployeeComponent},
+          {path:"deal",component:DealComponent},
         ],
       },
     ]),

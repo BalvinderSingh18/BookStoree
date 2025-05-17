@@ -1987,7 +1987,7 @@ namespace BookStore.Migrations
                     b.ToTable("Students");
                 });
 
-            modelBuilder.Entity("BookStore.Tasks.Task", b =>
+            modelBuilder.Entity("BookStore.Tasks.TaskItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2352,7 +2352,7 @@ namespace BookStore.Migrations
                     b.Navigation("State");
                 });
 
-            modelBuilder.Entity("BookStore.Tasks.Task", b =>
+            modelBuilder.Entity("BookStore.Tasks.TaskItem", b =>
                 {
                     b.HasOne("BookStore.Deals.Deal", "Deal")
                         .WithMany()

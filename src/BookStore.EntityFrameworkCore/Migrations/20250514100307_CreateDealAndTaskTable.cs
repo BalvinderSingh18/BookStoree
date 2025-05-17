@@ -57,8 +57,7 @@ namespace BookStore.Migrations
             migrationBuilder.CreateIndex(
             name: "IX_Tasks_Task_Number",
             table: "Tasks",
-            column: "Task_Number",
-            unique: true);
+            column: "Task_Number");
         }
 
         /// <inheritdoc />
