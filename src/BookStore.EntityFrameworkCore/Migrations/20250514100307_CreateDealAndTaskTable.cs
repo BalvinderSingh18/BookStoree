@@ -31,7 +31,7 @@ namespace BookStore.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Task_Number = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Task_Number = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Date_From = table.Column<DateTime>(type: "datetime2", nullable: false),
                     To_Date = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -54,10 +54,15 @@ namespace BookStore.Migrations
                 table: "Tasks",
                 column: "DealId");
 
-            migrationBuilder.CreateIndex(
+            migrationBuilder.DropIndex(
             name: "IX_Tasks_Task_Number",
-            table: "Tasks",
-            column: "Task_Number");
+            table: "Tasks");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tasks_Task_Number",
+                table: "Tasks",
+                column: "Task_Number");
+
         }
 
         /// <inheritdoc />
