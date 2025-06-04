@@ -91,11 +91,11 @@ namespace BookStore.Patients
         public async Task<List<GenderStatusPieChartDto>> GetAllChart(GetAllAccountsInput input)
         {
                 var data = await _patientRepository.GetAll()
-                    .GroupBy(b => new { b.Gender })
+                    .GroupBy(b => new { b.Gender,b.Disease })
                     .Select(g => new GenderStatusPieChartDto
                     {
                         Gender = g.Key.Gender.ToString(),
-                        //Disease=g.Key.Disease.ToString(),
+                        Disease=g.Key.Disease.ToString(),
                         Count = g.Count()
                     })
                     .ToListAsync();

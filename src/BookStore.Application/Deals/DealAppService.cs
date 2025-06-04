@@ -180,15 +180,11 @@ namespace BookStore.Deals
 
             await _dealsRepository.UpdateAsync(deal);
             await CurrentUnitOfWork.SaveChangesAsync();
-
-            // Step 3: Delete existing tasks linked to this deal
             var existingTasks = await _taskItemRepository.GetAllListAsync(t => t.DealId == deal.Id);
             foreach (var task in existingTasks)
             {
                 await _taskItemRepository.DeleteAsync(task);
             }
-
-            // Step 4: Insert new tasks from input
             var taskDtos = new List<TaskDto>();
             foreach (var taskDto in input.Tasks)
             {
@@ -214,8 +210,6 @@ namespace BookStore.Deals
                     Description = newTask.Description
                 });
             }
-
-            // Step 5: Return updated deal with its tasks
             return new DealWithTasksDto
             {
                 Id = deal.Id,

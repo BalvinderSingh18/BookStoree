@@ -181,58 +181,54 @@ public diseaseChartType: string= "bar";
     );
   }
 updateChart(): void {
-  this._patientService.getAllChart(
-    undefined,
-    undefined,
-    undefined,
-    undefined
-  ).subscribe((result) => {
+  this._patientService.getAllChart(undefined,undefined,undefined,undefined).subscribe((result) => {
     const genderCounts = { male: 0, female: 0, other: 0 };
-    // const diseaseCounts = { abc: 0, fever: 0, cold: 0 };
-    result.forEach((g) => {
-      const gender = g.gender.toLowerCase();
-      if (gender === "male") genderCounts.male = g.count;
-      else if (gender === "female") genderCounts.female = g.count;
-      else genderCounts.other = g.count;
+    const diseaseCounts: { [key: string]: number } = {};
+
+    result.forEach((item: any) => {
+      const gender = item.gender?.toLowerCase();
+      if (gender === 'male') genderCounts.male += item.count;
+      else if (gender === 'female') genderCounts.female += item.count;
+      else genderCounts.other += item.count;
+
+      const disease = item.disease?.toLowerCase();
+      if (disease && disease.trim() !== '') {
+        diseaseCounts[disease] = (diseaseCounts[disease] || 0) + item.count;
+      }
     });
-    // result.forEach((d)=>{
-    // if (d.disease?.toLowerCase() === 'abc') diseaseCounts.abc++;
-    // else if (d.disease?.toLowerCase() === 'fever') diseaseCounts.fever++;
-    // else if (d.disease?.toLowerCase() === 'cold') diseaseCounts.cold++;
-    // })
 
     this.genderChartData = {
       labels: ["Male", "Female", "Other"],
-      datasets: [
-        {
-          label: 'Gender Distribution',
-          data: [
-            genderCounts.male,
-            genderCounts.female,
-            genderCounts.other,
-          ],
-          backgroundColor: ["#4E79A7", "#A0CBE8", "#F28E2B"]
-        }
-      ]
+      datasets: [{
+        label: 'Gender Distribution',
+        data: [
+          genderCounts.male,
+          genderCounts.female,
+          genderCounts.other
+        ],
+        backgroundColor: ["#4E79A7", "#A0CBE8", "#F28E2B"]
+      }]
     };
-    //     this.diseaseChartData = {
-    //   labels: ["Abc", "Fever", "Cold"],
-    //   datasets: [
-    //     {
-    //       label: 'Disease Distribution',
-    //       data: [
-    //         diseaseCounts.abc,
-    //         diseaseCounts.fever,
-    //         diseaseCounts.cold,
-    //       ],
-    //       backgroundColor: ["#4E79A7", "#A0CBE8", "#F28E2B"]
-    //     }
-    //   ]
-    // };
+
+    this.diseaseChartData = {
+      labels: Object.keys(diseaseCounts).map(d => this.capitalize(d)),
+      datasets: [{
+        label: 'Disease Distribution',
+        data: Object.values(diseaseCounts),
+        backgroundColor: Object.keys(diseaseCounts).map((_, i) =>
+          ['#4E79A7', '#A0CBE8', '#F28E2B', '#59A14F', '#EDC948'][i % 5])
+      }]
+    };
 
     this.cd.detectChanges();
   });
 }
+// Optional utility
+capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+
 
  
 
