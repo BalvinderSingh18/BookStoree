@@ -3,9 +3,7 @@ using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using BookStore.Books.Dtos;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BookStore.Books
@@ -21,6 +19,7 @@ namespace BookStore.Books
         {
             try
             {
+             
                 var book = new Book
                 {
                     Title = input.Title,
@@ -28,6 +27,10 @@ namespace BookStore.Books
                     PublishedDate = input.PublishedDate,
                     price = input.price,
                 };
+                if (AbpSession.TenantId != null)
+                {
+                    book.TenantId = AbpSession.TenantId;
+                }
                 await _bookRepository.InsertAsync(book);
             }
             catch (Exception ex)
@@ -54,17 +57,18 @@ namespace BookStore.Books
         {
             try
             {
-                var books = await _bookRepository.GetAllListAsync();
-                var bookDtos = books.Select(b => new GetBookDto
-                {
-                    Id = b.Id,
-                    Title = b.Title,
-                    Author = b.Author,
-                    PublishedDate = b.PublishedDate,
-                    price = b.price
-                }).ToList();
 
-                return new PagedResultDto<GetBookDto>(bookDtos.Count, bookDtos);
+                    var books = await _bookRepository.GetAllListAsync();
+                    var bookDtos = books.Select(b => new GetBookDto
+                    {
+                        Id = b.Id,
+                        Title = b.Title,
+                        Author = b.Author,
+                        PublishedDate = b.PublishedDate,
+                        price = b.price
+                    }).ToList();
+
+                    return new PagedResultDto<GetBookDto>(bookDtos.Count, bookDtos);
             }
             catch (Exception ex)
             {
