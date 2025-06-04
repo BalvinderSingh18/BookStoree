@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookStore.Migrations
 {
     [DbContext(typeof(BookStoreDbContext))]
-    [Migration("20250517113547_RemoveUnqiuefromTaskNumber")]
-    partial class RemoveUnqiuefromTaskNumber
+    [Migration("20250604085443_Create_Entity_DealAndTask")]
+    partial class Create_Entity_DealAndTask
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
