@@ -1,0 +1,44 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #fileForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="isEditMode ? ('EditFile' | localize) : ('UploadNewFile' | localize)"
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body">
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="fileInput">
+        {{ 'SelectFile' | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="file"
+          class="form-control"
+          id="fileInput"
+          required
+          (change)="onFileSelected($event)"
+        />
+        <label class="custom-file-label" for="fileInput">
+        {{ selectedFile?.name || fileUpload?.fileName || ("Choose file" | localize) }}
+        </label>
+        <!-- <small class="form-text text-muted" *ngIf="selectedFile">
+          {{ 'SelectedFile' | localize }}: {{ selectedFile?.name  || fileUpload?.fileName }}
+        </small>
+        <div *ngIf="fileUpload?.fileName || selectedFile" class="mt-2">
+        <strong>{{ "Current File" | localize }}:</strong>
+         {{ selectedFile?.name || fileUpload?.fileName }}
+        </div> -->
+      </div>
+    </div>
+  </div>
+
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!selectedFile || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>

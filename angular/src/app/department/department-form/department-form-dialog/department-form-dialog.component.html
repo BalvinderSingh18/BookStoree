@@ -1,0 +1,54 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #departmentForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="
+      isEditMode ? ('EditDepartment' | localize) : ('CreateNewDepartment' | localize)
+    "
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body">
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="DepartmentName">
+        {{ "Name" | localize }}
+      </label>
+      <div class="col-md-9">
+        <input
+          type="text"
+          class="form-control"
+          name="DepartmentName"
+          id="DepartmentName"
+          maxlength="20"
+          placeholder="Enter Department Name"
+          pattern="^[a-zA-Z ]+$"
+          required
+          [(ngModel)]="department.name"
+          #departmentNameModel="ngModel"
+          #departmentNameEl
+        />
+        <div
+          *ngIf="departmentNameModel.invalid && departmentNameModel.touched"
+          class="text-danger"
+        >
+          <div *ngIf="departmentNameModel.errors?.pattern">
+            Only alphabets and spaces are allowed.
+          </div>
+        </div>
+        <abp-validation-summary
+          [control]="departmentNameModel"
+          [controlEl]="departmentNameEl"
+        ></abp-validation-summary>
+      </div>
+    </div>
+  </div>
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!departmentForm.form.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>
+

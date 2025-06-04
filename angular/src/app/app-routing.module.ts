@@ -11,6 +11,10 @@ import { NgModule } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { AppRouteGuard } from "@shared/auth/auth-route-guard";
 import { AppComponent } from "./app.component";
+import { FileuploadComponent } from "./fileupload/fileupload.component";
+import{DepartmentComponent} from "./department/department.component"
+import{EmployeeComponent} from "./employee/employee.component"
+import{DealComponent} from "./deal/deal.component";
 
 @NgModule({
   imports: [
@@ -66,7 +70,11 @@ import { AppComponent } from "./app.component";
           { path: "city", component: CityComponent },
           {path:"bed",component:BedComponent},
           {path:"patient",component:PatientComponent},
-          {path:"addmission",component:AddmissionComponent}
+          {path:"addmission",component:AddmissionComponent},
+          {path:"fileupload",component:FileuploadComponent},
+          {path:"department",component:DepartmentComponent},
+          {path:"employee",component:EmployeeComponent},
+          {path:"deal",component:DealComponent},
         ],
       },
     ]),

@@ -1,0 +1,166 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #createDealForm="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="'CreateNewDeal' | localize"
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+
+  <div class="modal-body" style="width: 100%; max-width: 90vw; margin: auto;">
+    <!-- Deal Name & Deal Date Side by Side -->
+    <div class="form-row">
+      <!-- Deal Name -->
+      <div class="form-group col-md-6 required">
+        <label for="dealName">{{ "Deal Name" | localize }}</label>
+        <input
+          type="text"
+          class="form-control"
+          id="dealName"
+          name="dealName"
+          required
+          [(ngModel)]="deal.name"
+          pattern="^[a-zA-Z\s0-9]+$"
+          #dealModel="ngModel"
+          #dealEl
+        />
+        <div *ngIf="dealModel.invalid && dealModel.touched" class="text-danger">
+          <div *ngIf="dealModel.errors?.pattern">
+            Only alphabets and spaces are allowed.
+          </div>
+          <abp-validation-summary
+            [control]="dealModel"
+            [controlEl]="dealEl"
+          ></abp-validation-summary>
+        </div>
+      </div>
+
+      <!-- Deal Date -->
+      <div class="form-group col-md-6 required">
+        <label for="dealDate">{{ "Deal Date" | localize }}</label>
+        <input
+          type="date"
+          class="form-control"
+          id="dealDate"
+          name="date"
+          required
+          [(ngModel)]="selectedDealDate"
+        />
+      </div>
+    </div>
+
+    <!-- Tasks Section -->
+    <div class="form-group">
+      <label>{{ "Tasks" | localize }}</label>
+      <div class="table-responsive" style="max-height: 300px; overflow-y: auto">
+        <table class="table table-bordered table-striped">
+          <thead class="bg-light">
+            <tr>
+              <th>{{ "Task No" | localize }}</th>
+              <th>{{ "Task Name" | localize }}</th>
+              <th>{{ "Date From" | localize }}</th>
+              <th>{{ "To Date" | localize }}</th>
+              <th>{{ "Description" | localize }}</th>
+              <th>{{ "Actions" | localize }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let task of deal.tasks; let i = index">
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="taskNo{{ i }}"
+                  [(ngModel)]="task.task_Number"
+                  required
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="taskTitle{{ i }}"
+                  [(ngModel)]="task.title"
+                  pattern="^[a-zA-Z\s]+$"
+                  #taskModel="ngModel"
+                  #taskEl
+                  required
+                />
+                <abp-validation-summary
+                  [control]="taskModel"
+                  [controlEl]="taskEl"
+                ></abp-validation-summary>
+              </td>
+
+              <td>
+                <input
+                  type="date"
+                  class="form-control"
+                  name="taskDateFrom{{ i }}"
+                  [(ngModel)]="task.date_From"
+                  required
+                />
+              </td>
+              <td>
+                <input
+                  type="date"
+                  class="form-control"
+                  name="taskToDate{{ i }}"
+                  [(ngModel)]="task.to_Date"
+                  required
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="taskDescription{{ i }}"
+                  [(ngModel)]="task.description"
+                  pattern="^[a-zA-Z\s0-9]+$"
+                  #desModel="ngModel"
+                  #desEl
+                  required
+                />
+                <abp-validation-summary
+                  [control]="desModel"
+                  [controlEl]="desEl"
+                ></abp-validation-summary>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger"
+                  (click)="removeTask(i)"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="deal.tasks.length === 0">
+              <td colspan="6" class="text-center text-muted">
+                {{ "NoTasksAdded" | localize }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-outline-primary mt-2"
+        (click)="addTask()"
+      >
+        <i class="fas fa-plus"></i> {{ "AddTask" | localize }}
+      </button>
+    </div>
+  </div>
+
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!createDealForm.form.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+    (onSaveClick)="save()"
+  ></abp-modal-footer>
+</form>
