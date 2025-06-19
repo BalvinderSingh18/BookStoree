@@ -54,24 +54,24 @@ namespace BookStore.Web.Host.Startup
 
         /* This method is needed to authorize SignalR javascript client.
          * SignalR can not send authorization header. So, we are getting it from query string as an encrypted text. */
-        private static Task QueryStringTokenResolver(MessageReceivedContext context)
+        public static Task QueryStringTokenResolver(MessageReceivedContext context)
         {
             if (!context.HttpContext.Request.Path.HasValue ||
                 !context.HttpContext.Request.Path.Value.StartsWith("/signalr"))
             {
-                // We are just looking for signalr clients
+                // Not a SignalR request
                 return Task.CompletedTask;
             }
 
             var qsAuthToken = context.HttpContext.Request.Query["enc_auth_token"].FirstOrDefault();
             if (qsAuthToken == null)
             {
-                // Cookie value does not matches to querystring value
+                // No token found
                 return Task.CompletedTask;
             }
 
-            // Set auth token from cookie
-            //context.Token = SimpleStringCipher.Instance.Decrypt(qsAuthToken);
+            // Decrypt and assign the token
+            context.Token = SimpleStringCipher.Instance.Decrypt(qsAuthToken);
             return Task.CompletedTask;
         }
     }

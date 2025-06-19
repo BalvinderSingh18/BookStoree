@@ -13,10 +13,14 @@ using Abp.Castle.Logging.Log4Net;
 using Abp.Extensions;
 using BookStore.Configuration;
 using BookStore.Identity;
-using Abp.AspNetCore.SignalR.Hubs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.IO;
+using BookStore.SignalR;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BookStore.Web.Host.Startup
 {
@@ -46,7 +50,36 @@ namespace BookStore.Web.Host.Startup
             IdentityRegistrar.Register(services);
             AuthConfigurer.Configure(services, _appConfiguration);
 
+            services.AddAuthentication()
+    .AddJwtBearer(options =>
+    {
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                // Add this
+                var accessToken = context.Request.Query["enc_auth_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/signalr/chatHub"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
+
+        // Optional: Make sure User.Identity.Name maps correctly
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier
+        };
+    });
+
             services.AddSignalR();
+            services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
 
             // Configure CORS for angular2 UI
             services.AddCors(
@@ -83,14 +116,15 @@ namespace BookStore.Web.Host.Startup
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
+            app.UseAbp(options => { options.UseAbpRequestLocalization = false; });
 
-            app.UseCors(_defaultCorsPolicyName); // Enable CORS!
+            app.UseCors(_defaultCorsPolicyName);
 
             app.UseStaticFiles();
 
             app.UseRouting();
 
+            // ✅ Use authentication/authorization
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -98,24 +132,24 @@ namespace BookStore.Web.Host.Startup
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<AbpCommonHub>("/signalr");
+                // ✅ Register SignalR hub
+                endpoints.MapHub<ChatHub>("/signalr/chatHub");
+
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
             });
 
-            // Enable middleware to serve generated Swagger as a JSON endpoint
+            // Swagger setup
             app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
-
-            // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
             app.UseSwaggerUI(options =>
             {
-                // specifying the Swagger JSON endpoint.
                 options.SwaggerEndpoint($"/swagger/{_apiVersion}/swagger.json", $"BookStore API {_apiVersion}");
                 options.IndexStream = () => Assembly.GetExecutingAssembly()
                     .GetManifestResourceStream("BookStore.Web.Host.wwwroot.swagger.ui.index.html");
-                options.DisplayRequestDuration(); // Controls the display of the request duration (in milliseconds) for "Try it out" requests.
-            }); // URL: /swagger
+                options.DisplayRequestDuration();
+            });
         }
+
 
         private void ConfigureSwagger(IServiceCollection services)
         {

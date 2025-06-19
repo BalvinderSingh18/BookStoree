@@ -17,6 +17,7 @@ using BookStore.Departments;
 using BookStore.Employees;
 using BookStore.Deals;
 using BookStore.Tasks;
+using BookStore.TaskManagments;
 
 namespace BookStore.EntityFrameworkCore
 {
@@ -42,5 +43,7 @@ namespace BookStore.EntityFrameworkCore
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Deal> Deals { get; set; }
         public DbSet<TaskItem> Tasks { get; set; }
+        public DbSet<TaskManagment> taskManagments { get; set; }
+
     }
 }

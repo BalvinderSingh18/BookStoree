@@ -24,6 +24,7 @@ import { SidebarLogoComponent } from "./layout/sidebar-logo.component";
 import { SidebarUserPanelComponent } from "./layout/sidebar-user-panel.component";
 import { SidebarMenuComponent } from "./layout/sidebar-menu.component";
 import { NgChartsModule } from 'ng2-charts';
+import { EmojiModule } from '@ctrl/ngx-emoji-mart/ngx-emoji';
 import {
   CourseServiceProxy,
   StudentServiceProxy,
@@ -57,7 +58,8 @@ import {
     ServiceProxyModule,
     NgxPaginationModule,
     SharedModule,
-    NgChartsModule
+    NgChartsModule,
+    EmojiModule
   ],
   providers: [CourseServiceProxy, StudentServiceProxy],
 })
