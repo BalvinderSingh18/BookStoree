@@ -75,11 +75,31 @@
             </div>
           </div>
         </form>
-        @if (isSelfRegistrationAllowed) {
+        <!-- @if (isSelfRegistrationAllowed) {
           <p class="mb-1">
             <a [routerLink]="['../register']">
               <i class="fa fa-plus-circle"></i> {{ "Register" | localize }}
             </a>
           </p>
-        }
+        } -->
       </div>
+      <div class="mt-5">
+    <!-- <div class="mb-2">
+        <span>{{ 'PasswordlessLogin_Description' | localize }}</span>
+        <a href="/account/passwordless-login" id="passwordless-btn"> {{ 'ClickHere' | localize }}</a>
+    </div> -->
+
+    <div  class="mt-2">
+        <span>{{ 'NotAMemberYet' | localize }}</span>
+    </div>
+    <span *ngIf="isSelfRegistrationAllowed">
+        <a routerLink="/account/register">{{ 'CreateAnAccount' | localize }}</a>
+        <span class="pipe-divider"> | </span>
+   </span>
+    <span>
+        <a routerLink="/account/select-edition">{{ 'NewTenant' | localize }}</a>
+        <span class="pipe-divider"> | </span>
+    </span>
+
+    <!-- <a routerLink="/account/email-activation" id="email-activation-btn">{{ 'EmailActivation' | localize }}</a> -->
+</div>

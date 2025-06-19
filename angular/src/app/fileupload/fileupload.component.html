@@ -6,11 +6,7 @@
           <h1>{{ "Files" | localize }}</h1>
         </div>
         <div class="col-6 text-right">
-          <a
-            href="javascript:;"
-            class="btn bg-blue"
-            (click)="createFile()"
-          >
+          <a href="javascript:;" class="btn bg-blue" (click)="createFile()">
             <i class="fa fa-plus-square"></i>
             {{ "Create" | localize }}
           </a>
@@ -172,7 +168,7 @@
                   "
                 >
                   <td>{{ fileupload.fileName }}</td>
-      <!-- <td>
+                  <!-- <td>
         <button (click)="downloadFile(fileupload)">
           <i class="fas fa-download"></i> Download
         </button>
@@ -192,13 +188,14 @@
                     >
                       <i class="fas fa-trash"></i> {{ "Delete" | localize }}
                     </button>
-                     <button
-  type="button"
-  class="btn btn-sm btn-info"
-  (click)="downloadFile(fileupload)"
->
-  <i class="fas fa-download"></i> {{ 'Download' | localize }}
-</button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-info"
+                      (click)="downloadFile(fileupload)"
+                    >
+                      <i class="fas fa-download"></i>
+                      {{ "Download" | localize }}
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -234,6 +231,3 @@
     </div>
   </section>
 </div>
-
-
-

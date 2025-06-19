@@ -12,6 +12,17 @@ namespace BookStore.Authorization
             context.CreatePermission(PermissionNames.Pages_Users_Activation, L("UsersActivation"));
             context.CreatePermission(PermissionNames.Pages_Roles, L("Roles"));
             context.CreatePermission(PermissionNames.Pages_Tenants, L("Tenants"), multiTenancySides: MultiTenancySides.Host);
+
+            var taskManagement = context.CreatePermission(
+    AppPermissions.Pages_TaskManagement,
+    L("TaskManagement")
+);
+
+            taskManagement.CreateChildPermission(AppPermissions.Pages_TaskManagement_Create, L("CreateTask"));
+            taskManagement.CreateChildPermission(AppPermissions.Pages_TaskManagement_Edit, L("EditTask"));
+            taskManagement.CreateChildPermission(AppPermissions.Pages_TaskManagement_Delete, L("DeleteTask"));
+            taskManagement.CreateChildPermission(AppPermissions.Pages_TaskManagement_View, L("ViewTask"));
+            taskManagement.CreateChildPermission(AppPermissions.Pages_TaskManagement_Admin, L("Discussion Admin Only"));
         }
 
         private static ILocalizableString L(string name)

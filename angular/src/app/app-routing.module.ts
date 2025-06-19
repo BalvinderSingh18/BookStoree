@@ -15,6 +15,9 @@ import { FileuploadComponent } from "./fileupload/fileupload.component";
 import{DepartmentComponent} from "./department/department.component"
 import{EmployeeComponent} from "./employee/employee.component"
 import{DealComponent} from "./deal/deal.component";
+import{TaskmanagementsComponent}from "./taskmanagements/taskmanagements.component";
+import{CurrencyexchangeComponent}from"./currencyexchange/currencyexchange.component";
+import{ChatComponent}from"./chat/chat.component";
 
 @NgModule({
   imports: [
@@ -75,6 +78,9 @@ import{DealComponent} from "./deal/deal.component";
           {path:"department",component:DepartmentComponent},
           {path:"employee",component:EmployeeComponent},
           {path:"deal",component:DealComponent},
+          {path:"taskmanagements",component:TaskmanagementsComponent},
+          {path:"currencyexchange",component:CurrencyexchangeComponent},
+          {path:"chat",component:ChatComponent},
         ],
       },
     ]),

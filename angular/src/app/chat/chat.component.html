@@ -1,0 +1,147 @@
+<!-- chat.component.html -->
+<div style="display: flex; height: 80vh; width: 100%;">
+  <!-- Sidebar -->
+  <div style="width: 250px; background: #f0f0f0; padding: 1rem; overflow-y: auto;">
+    <h5>Chats</h5>
+    <div *ngFor="let user of userList" (click)="selectUser(user)"
+         [ngStyle]="{
+           'cursor': 'pointer',
+           'padding': '10px',
+           'border-radius': '10px',
+           'background-color': selectedUser?.id === user.id ? '#D0E8E2' : '#ffffff',
+           'margin-bottom': '10px'
+         }"
+         class="shadow-sm border">
+      <strong>{{ user.fullName }}</strong><br />
+      <small>{{ user.emailAddress }}</small>
+    </div>
+  </div>
+
+  <!-- Chat Box -->
+  <div style="flex-grow: 1;">
+    <ng-template #chatBox>
+      <div class="card shadow border-0"
+           style="height: 80vh; width: 100%; background-color: #E5DDD5; display: flex; flex-direction: column;">
+
+        <!-- Header -->
+        <div class="card-header d-flex align-items-center text-white px-3" style="background-color: #075E54;">
+          <div class="d-flex align-items-center flex-grow-1">
+            <i class="fas fa-user-circle fa-2x text-white mx-2"></i>
+            <h5 class="mb-0">{{ selectedUser?.fullName || 'Select User' }}</h5>
+          </div>
+          <div class="d-flex align-items-center position-relative">
+            <button class="btn btn-sm text-white me-2" (click)="startCall('audio')" style="background: transparent; border: none;">
+              <i class="fas fa-phone"></i>
+            </button>
+            <button class="btn btn-sm text-white me-2" (click)="startCall('video')" style="background: transparent; border: none;">
+              <i class="fas fa-video"></i>
+            </button>
+            <button class="btn btn-sm text-white me-2" *ngIf="isInCall" (click)="endCall()" style="background: transparent; border: none;">
+              <i class="fas fa-phone-slash"></i>
+            </button>
+            <div class="position-relative">
+              <button (click)="toggleOptions()" class="btn btn-sm text-white" style="background: transparent; border: none;">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <div *ngIf="optionsVisible"
+                   class="position-absolute end-0 mt-2 bg-white text-dark shadow rounded border"
+                   style="min-width: 220px; z-index: 1000;">
+                <a class="dropdown-item" href="#" (click)="clearMessages()">Clear messages</a>
+                <a class="dropdown-item text-danger" (click)="deleteChat()">Delete chat</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Section -->
+<!-- Updated Video Call Section -->
+<div *ngIf="isInCall" class="position-relative p-3" style="background-color: #ECE5DD; display: flex; justify-content: center; gap: 1rem;">
+  <video #remoteVideo autoplay playsinline style="width: 60%; max-height: 60vh; border-radius: 12px; border: 1px solid #ccc;"></video>
+  <video #localVideo autoplay muted playsinline style="width: 20%; max-height: 20vh; border-radius: 12px; border: 1px solid #ccc; position: absolute; bottom: 10px; right: 10px;"></video>
+
+  <!-- Call Controls -->
+  <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-flex gap-3">
+    <button class="btn btn-danger rounded-circle" (click)="endCall()" title="End Call">
+      <i class="fas fa-phone-slash text-white"></i>
+    </button>
+    <button class="btn btn-light rounded-circle" (click)="toggleMute()" title="Mute/Unmute Mic">
+      <i [class]="isMicMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone'"></i>
+    </button>
+    <button class="btn btn-light rounded-circle" (click)="toggleCamera()" title="Disable/Enable Camera">
+      <i [class]="isCameraOff ? 'fas fa-video-slash' : 'fas fa-video'"></i>
+    </button>
+  </div>
+</div>
+
+
+        <!-- Messages -->
+        <div class="card-body" #chatWindow style="flex-grow: 1; overflow-y: auto; padding: 1rem;">
+          <div *ngFor="let msg of messages"
+               class="mb-2 d-flex"
+               [ngClass]="{
+                 'justify-content-end': msg.senderId === currentUserId,
+                 'justify-content-start': msg.senderId !== currentUserId
+               }">
+            <div class="p-2"
+                 [ngStyle]="{
+                   'background-color': msg.senderId === currentUserId ? '#DCF8C6' : '#FFFFFF',
+                   'color': '#303030',
+                   'border-radius': '15px',
+                   'max-width': '75%'
+                 }">
+              <div class="fw-semibold small text-muted" *ngIf="msg.senderId !== currentUserId">{{ selectedUser?.fullName }}</div>
+              <div class="d-flex align-items-end justify-content-between">
+                <div class="flex-grow-1">{{ msg.text }}</div>
+                <div *ngIf="msg.senderId === currentUserId" class="ms-2 d-flex align-items-center m-1">
+                  <ng-container [ngSwitch]="msg.status">
+                    <i *ngSwitchCase="'sent'" class="fas fa-check text-muted" style="font-size: 12px;"></i>
+                    <i *ngSwitchCase="'delivered'" class="fas fa-check-double text-muted" style="font-size: 12px;"></i>
+                    <i *ngSwitchCase="'seen'" class="fas fa-check-double text-info" style="font-size: 12px;"></i>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer d-flex align-items-center px-2 position-relative" style="background-color: #F0F0F0;">
+          <button class="btn btn-sm text-muted me-2" (click)="toggleEmojiPicker()">
+            <i class="far fa-smile fa-lg"></i>
+          </button>
+
+          <div *ngIf="showEmojiPicker"
+               class="position-absolute"
+               style="bottom: 60px; left: 10px; z-index: 1000; max-height: 300px; overflow-y: auto; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
+            <emoji-mart
+              set="apple"
+              (emojiSelect)="addEmoji($event)"
+              [style]="{ width: '320px' }"
+            ></emoji-mart>
+          </div>
+
+          <button class="btn btn-sm text-muted me-2" style="background: transparent; border: none;">
+            <i class="fas fa-paperclip fa-lg"></i>
+          </button>
+
+          <input type="text"
+                 [(ngModel)]="message"
+                 (keyup.enter)="sendMessage()"
+                 class="form-control me-2"
+                 placeholder="Type a message..."
+                 style="border-radius: 20px;" />
+
+          <button *ngIf="!message" class="btn btn-sm btn-secondary" style="border-radius: 50%; width: 40px; height: 40px;">
+            <i class="fas fa-microphone"></i>
+          </button>
+          <button *ngIf="message" class="btn btn-success" (click)="sendMessage()" style="border-radius: 20px;">
+            Send
+          </button>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Render template -->
+    <ng-container *ngTemplateOutlet="chatBox"></ng-container>
+  </div>
+</div>
