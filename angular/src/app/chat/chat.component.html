@@ -1,102 +1,367 @@
 <!-- chat.component.html -->
-<div style="display: flex; height: 80vh; width: 100%;">
+<div style="display: flex; height: 80vh; width: 100%">
   <!-- Sidebar -->
-  <div style="width: 250px; background: #f0f0f0; padding: 1rem; overflow-y: auto;">
+  <div
+    style="width: 250px; background: #f0f0f0; padding: 1rem; overflow-y: auto"
+  >
     <h5>Chats</h5>
-    <div *ngFor="let user of userList" (click)="selectUser(user)"
-         [ngStyle]="{
-           'cursor': 'pointer',
-           'padding': '10px',
-           'border-radius': '10px',
-           'background-color': selectedUser?.id === user.id ? '#D0E8E2' : '#ffffff',
-           'margin-bottom': '10px'
-         }"
-         class="shadow-sm border">
-      <strong>{{ user.fullName }}</strong><br />
+    <div
+      *ngFor="let user of userList; trackBy: trackByUserId"
+      (click)="selectUser(user)"
+      [ngStyle]="{
+        cursor: 'pointer',
+        padding: '10px',
+        'border-radius': '10px',
+        'background-color':
+          selectedUser?.id === user.id ? '#D0E8E2' : '#ffffff',
+        'margin-bottom': '10px'
+      }"
+      class="shadow-sm border"
+    >
+      <strong>{{ user.fullName }}</strong
+      ><br />
       <small>{{ user.emailAddress }}</small>
     </div>
   </div>
 
   <!-- Chat Box -->
-  <div style="flex-grow: 1;">
+  <div style="flex-grow: 1">
     <ng-template #chatBox>
-      <div class="card shadow border-0"
-           style="height: 80vh; width: 100%; background-color: #E5DDD5; display: flex; flex-direction: column;">
-
+      <div
+        class="card shadow border-0"
+        style="
+          height: 80vh;
+          width: 100%;
+          background-color: #e5ddd5;
+          display: flex;
+          flex-direction: column;
+        "
+      >
         <!-- Header -->
-        <div class="card-header d-flex align-items-center text-white px-3" style="background-color: #075E54;">
+        <div
+          class="card-header d-flex align-items-center text-white px-3"
+          style="background-color: #075e54"
+        >
           <div class="d-flex align-items-center flex-grow-1">
             <i class="fas fa-user-circle fa-2x text-white mx-2"></i>
-            <h5 class="mb-0">{{ selectedUser?.fullName || 'Select User' }}</h5>
+            <h5 class="mb-0">{{ selectedUser?.fullName || "Select User" }}</h5>
           </div>
           <div class="d-flex align-items-center position-relative">
-            <button class="btn btn-sm text-white me-2" (click)="startCall('audio')" style="background: transparent; border: none;">
+            <button
+              class="btn btn-sm text-white me-2"
+              (click)="startCall('audio')"
+              style="background: transparent; border: none"
+            >
               <i class="fas fa-phone"></i>
             </button>
-            <button class="btn btn-sm text-white me-2" (click)="startCall('video')" style="background: transparent; border: none;">
+            <button
+              class="btn btn-sm text-white me-2"
+              (click)="startCall('video')"
+              style="background: transparent; border: none"
+            >
               <i class="fas fa-video"></i>
             </button>
-            <button class="btn btn-sm text-white me-2" *ngIf="isInCall" (click)="endCall()" style="background: transparent; border: none;">
+            <button
+              class="btn btn-sm text-white me-2"
+              *ngIf="isInCall"
+              (click)="endCall()"
+              style="background: transparent; border: none"
+            >
               <i class="fas fa-phone-slash"></i>
             </button>
-            <div class="position-relative">
-              <button (click)="toggleOptions()" class="btn btn-sm text-white" style="background: transparent; border: none;">
-                <i class="fas fa-ellipsis-v"></i>
-              </button>
-              <div *ngIf="optionsVisible"
-                   class="position-absolute end-0 mt-2 bg-white text-dark shadow rounded border"
-                   style="min-width: 220px; z-index: 1000;">
-                <a class="dropdown-item" href="#" (click)="clearMessages()">Clear messages</a>
-                <a class="dropdown-item text-danger" (click)="deleteChat()">Delete chat</a>
-              </div>
-            </div>
+<div class="position-relative d-inline-block">
+  <button
+    (click)="toggleOptions()"
+    class="btn btn-sm text-white"
+    style="background: transparent; border: none"
+  >
+    <i class="fas fa-ellipsis-v"></i>
+  </button>
+
+  <div
+    *ngIf="optionsVisible"
+    class="position-absolute bg-white text-dark shadow rounded border"
+    style="min-width: 220px; z-index: 1000; top: 100%; right: 0;"
+  >
+    <a class="dropdown-item" (click)="clearMessages()">Clear messages</a>
+    <a class="dropdown-item text-danger" (click)="deleteChat()">Delete chat</a>
+  </div>
+</div>
+
           </div>
         </div>
 
         <!-- Video Section -->
-<!-- Updated Video Call Section -->
-<div *ngIf="isInCall" class="position-relative p-3" style="background-color: #ECE5DD; display: flex; justify-content: center; gap: 1rem;">
-  <video #remoteVideo autoplay playsinline style="width: 60%; max-height: 60vh; border-radius: 12px; border: 1px solid #ccc;"></video>
-  <video #localVideo autoplay muted playsinline style="width: 20%; max-height: 20vh; border-radius: 12px; border: 1px solid #ccc; position: absolute; bottom: 10px; right: 10px;"></video>
+        <!-- Updated Video Call Section -->
+        <div
+          *ngIf="isInCall"
+          class="position-relative p-3"
+          style="
+            background-color: #ece5dd;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+          "
+        >
+          <video
+            #remoteVideo
+            autoplay
+            playsinline
+            style="
+              width: 60%;
+              max-height: 60vh;
+              border-radius: 12px;
+              border: 1px solid #ccc;
+            "
+          ></video>
+          <video
+            #localVideo
+            autoplay
+            muted
+            playsinline
+            style="
+              width: 20%;
+              max-height: 20vh;
+              border-radius: 12px;
+              border: 1px solid #ccc;
+              position: absolute;
+              bottom: 10px;
+              right: 10px;
+            "
+          ></video>
 
-  <!-- Call Controls -->
-  <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-flex gap-3">
-    <button class="btn btn-danger rounded-circle" (click)="endCall()" title="End Call">
-      <i class="fas fa-phone-slash text-white"></i>
-    </button>
-    <button class="btn btn-light rounded-circle" (click)="toggleMute()" title="Mute/Unmute Mic">
-      <i [class]="isMicMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone'"></i>
-    </button>
-    <button class="btn btn-light rounded-circle" (click)="toggleCamera()" title="Disable/Enable Camera">
-      <i [class]="isCameraOff ? 'fas fa-video-slash' : 'fas fa-video'"></i>
-    </button>
-  </div>
-</div>
-
+          <!-- Call Controls -->
+          <div
+            class="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-flex gap-3"
+          >
+            <button
+              class="btn btn-danger rounded-circle"
+              (click)="endCall()"
+              title="End Call"
+            >
+              <i class="fas fa-phone-slash text-white"></i>
+            </button>
+            <button
+              class="btn btn-light rounded-circle"
+              (click)="toggleMute()"
+              title="Mute/Unmute Mic"
+            >
+              <i
+                [class]="
+                  isMicMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone'
+                "
+              ></i>
+            </button>
+            <button
+              class="btn btn-light rounded-circle"
+              (click)="toggleCamera()"
+              title="Disable/Enable Camera"
+            >
+              <i
+                [class]="isCameraOff ? 'fas fa-video-slash' : 'fas fa-video'"
+              ></i>
+            </button>
+          </div>
+        </div>
 
         <!-- Messages -->
-        <div class="card-body" #chatWindow style="flex-grow: 1; overflow-y: auto; padding: 1rem;">
-          <div *ngFor="let msg of messages"
-               class="mb-2 d-flex"
-               [ngClass]="{
-                 'justify-content-end': msg.senderId === currentUserId,
-                 'justify-content-start': msg.senderId !== currentUserId
-               }">
-            <div class="p-2"
-                 [ngStyle]="{
-                   'background-color': msg.senderId === currentUserId ? '#DCF8C6' : '#FFFFFF',
-                   'color': '#303030',
-                   'border-radius': '15px',
-                   'max-width': '75%'
-                 }">
-              <div class="fw-semibold small text-muted" *ngIf="msg.senderId !== currentUserId">{{ selectedUser?.fullName }}</div>
+        <div
+          class="card-body"
+          #chatWindow
+          style="flex-grow: 1; overflow-y: auto; padding: 1rem"
+        >
+          <div
+            *ngFor="let msg of messages"
+            class="mb-2 d-flex"
+            [ngClass]="{
+              'justify-content-end': msg.senderId === currentUserId,
+              'justify-content-start': msg.senderId !== currentUserId
+            }"
+          >
+            <div
+              class="p-2"
+              [ngStyle]="{
+                'background-color':
+                  msg.senderId === currentUserId ? '#DCF8C6' : '#FFFFFF',
+                color: '#303030',
+                'border-radius': '15px',
+                'max-width': '75%'
+              }"
+            >
+              <div
+                class="fw-semibold small text-muted"
+                *ngIf="msg.senderId !== currentUserId"
+              >
+                {{ selectedUser?.fullName }}
+              </div>
               <div class="d-flex align-items-end justify-content-between">
+                <ng-container *ngIf="msg.isAttachment">
+                  <!-- IMAGE PREVIEW -->
+                  <ng-container *ngIf="msg.fileType?.startsWith('image')">
+                    <div
+                      class="position-relative d-inline-block mb-2 rounded overflow-hidden"
+                      style="max-width: 250px"
+                    >
+                      <img
+                        [src]="msg.fileUrl"
+                        [alt]="msg.fileName"
+                          (click)="previewImage(msg)"
+                        class="img-fluid rounded"
+                        [ngStyle]="{
+                          filter:
+                            msg.senderId !== currentUserId && !msg.downloaded
+                              ? 'blur(12px)'
+                              : 'none',
+                          opacity:
+                            msg.senderId !== currentUserId && !msg.downloaded
+                              ? '0.6'
+                              : '1',
+                          cursor: msg.downloaded ? 'pointer' : 'default'
+                        }"
+                      />
+
+                      <!-- Floating download button -->
+<button
+  *ngIf="msg.isAttachment && msg.senderId !== currentUserId && !msg.downloaded"
+  class="btn btn-light btn-sm rounded-circle position-absolute"
+  style="bottom: 8px; right: 8px; width: 36px; height: 36px;"
+  (click)="downloadAttachment(msg)"
+>
+  <i class="fas fa-download"></i>
+</button>
+
+<!-- ✅ Message status ticks (sent/delivered/seen) -->
+<span
+  class="message-time"
+  *ngIf="msg.senderId === currentUserId"
+  style="position: absolute; bottom: 4px; right: 8px; font-size: 12px; color: gray;"
+>
+  <i
+    class="bi bi-check"
+    *ngIf="msg.status === 'sent'"
+  ></i>
+  <i
+    class="bi bi-check-all"
+    *ngIf="msg.status === 'delivered'"
+  ></i>
+  <i
+    class="bi bi-check-all"
+    *ngIf="msg.status === 'seen'"
+    style="color: #0d6efd;"
+  ></i>
+</span>
+                    </div>
+                  </ng-container>
+
+                  <!-- VIDEO PREVIEW -->
+                  <ng-container *ngIf="msg.fileType?.startsWith('video')">
+                    <div
+                      class="position-relative d-inline-block mb-2 rounded overflow-hidden"
+                      style="max-width: 250px"
+                    >
+                      <video
+                        [src]="msg.fileUrl"
+                        [attr.controls]="
+                          msg.senderId === currentUserId || msg.downloaded
+                            ? true
+                            : null
+                        "
+                        class="rounded"
+                        style="max-width: 100%"
+                        [ngStyle]="{
+                          filter:
+                            msg.senderId !== currentUserId && !msg.downloaded
+                              ? 'blur(12px)'
+                              : 'none',
+                          opacity:
+                            msg.senderId !== currentUserId && !msg.downloaded
+                              ? '0.6'
+                              : '1'
+                        }"
+                      ></video>
+
+                      <!-- Floating download button -->
+                      <button
+                        *ngIf="
+                          msg.senderId !== currentUserId && !msg.downloaded
+                        "
+                        class="btn btn-success btn-sm rounded-circle position-absolute"
+                        style="
+                          bottom: 8px;
+                          right: 8px;
+                          width: 36px;
+                          height: 36px;
+                        "
+                        (click)="downloadAttachment(msg)"
+                      >
+                        <i class="bi bi-download"></i>
+                      </button>
+                    </div>
+                  </ng-container>
+
+                  <!-- PDF FILE PREVIEW -->
+                  <ng-container *ngIf="msg.fileType === 'application/pdf'">
+                    <div
+                      class="border rounded p-2 d-inline-block"
+                      style="max-width: 250px; background-color: #f8f9fa"
+                    >
+                      <i
+                        class="bi bi-file-earmark-pdf text-danger fs-4 me-2"
+                      ></i>
+                      <strong>{{ msg.fileName }}</strong>
+                      <br />
+                      <a
+                        (click)="downloadAttachment(msg)"
+                        class="btn btn-sm btn-outline-success mt-2"
+                      >
+                        ⬇️ Download PDF
+                      </a>
+                    </div>
+                  </ng-container>
+
+                  <!-- OTHER FILES (DOCX, ZIP, etc.) -->
+                  <ng-container
+                    *ngIf="
+                      !msg.fileType?.startsWith('image') &&
+                      !msg.fileType?.startsWith('video') &&
+                      msg.fileType !== 'application/pdf'
+                    "
+                  >
+                    <div
+                      class="border rounded p-2 d-inline-block"
+                      style="max-width: 250px; background-color: #f8f9fa"
+                    >
+                      <i class="bi bi-paperclip me-2"></i>
+                      <strong>{{ msg.fileName || "File" }}</strong>
+                      <br />
+                      <a
+                        (click)="downloadAttachment(msg)"
+                        class="btn btn-sm btn-outline-success mt-2"
+                      >
+                        ⬇️ Download File
+                      </a>
+                    </div>
+                  </ng-container>
+                </ng-container>
+
                 <div class="flex-grow-1">{{ msg.text }}</div>
-                <div *ngIf="msg.senderId === currentUserId" class="ms-2 d-flex align-items-center m-1">
-                  <ng-container [ngSwitch]="msg.status">
-                    <i *ngSwitchCase="'sent'" class="fas fa-check text-muted" style="font-size: 12px;"></i>
-                    <i *ngSwitchCase="'delivered'" class="fas fa-check-double text-muted" style="font-size: 12px;"></i>
-                    <i *ngSwitchCase="'seen'" class="fas fa-check-double text-info" style="font-size: 12px;"></i>
+                <div
+                  class="d-flex justify-content-end align-items-center mt-1"
+                  style="font-size: 0.7rem; color: rgba(255, 255, 255, 0.8)"
+                >
+                  <span class="me-1 text-muted">{{
+                    formatRelativeTime(msg.timestamp)
+                  }}</span>
+
+                  <ng-container *ngIf="msg.senderId === currentUserId">
+                    <i
+                      class="fas"
+                      [ngClass]="{
+                        'fa-check': msg.status === 'sent',
+                        'fa-check-double': msg.status === 'delivered',
+                        'fa-check-double text-primary': msg.status === 'seen'
+                      }"
+                    ></i>
                   </ng-container>
                 </div>
               </div>
@@ -105,14 +370,31 @@
         </div>
 
         <!-- Footer -->
-        <div class="card-footer d-flex align-items-center px-2 position-relative" style="background-color: #F0F0F0;">
-          <button class="btn btn-sm text-muted me-2" (click)="toggleEmojiPicker()">
+        <div
+          class="card-footer d-flex align-items-center px-2 position-relative"
+          style="background-color: #f0f0f0"
+        >
+          <button
+            class="btn btn-sm text-muted me-2"
+            (click)="toggleEmojiPicker()"
+          >
             <i class="far fa-smile fa-lg"></i>
           </button>
 
-          <div *ngIf="showEmojiPicker"
-               class="position-absolute"
-               style="bottom: 60px; left: 10px; z-index: 1000; max-height: 300px; overflow-y: auto; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
+          <div
+            *ngIf="showEmojiPicker"
+            class="position-absolute"
+            style="
+              bottom: 60px;
+              left: 10px;
+              z-index: 1000;
+              max-height: 300px;
+              overflow-y: auto;
+              background: white;
+              border-radius: 10px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            "
+          >
             <emoji-mart
               set="apple"
               (emojiSelect)="addEmoji($event)"
@@ -120,27 +402,137 @@
             ></emoji-mart>
           </div>
 
-          <button class="btn btn-sm text-muted me-2" style="background: transparent; border: none;">
+          <label
+            class="btn btn-sm text-muted me-2"
+            style="background: transparent; border: none; cursor: pointer"
+          >
             <i class="fas fa-paperclip fa-lg"></i>
-          </button>
+            <input
+              type="file"
+              hidden
+              (change)="onAttachmentSelected($event.target.files[0])"
+            />
+          </label>
+          <!-- 📎 WhatsApp-Style Attachment Preview Modal -->
+          <div
+            *ngIf="showAttachmentModal"
+            class="modal d-block"
+            tabindex="-1"
+            style="background: rgba(0, 0, 0, 0.7); z-index: 1050"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content text-center p-3">
+                <h5 class="mb-3">Attachment Preview</h5>
 
-          <input type="text"
-                 [(ngModel)]="message"
-                 (keyup.enter)="sendMessage()"
-                 class="form-control me-2"
-                 placeholder="Type a message..."
-                 style="border-radius: 20px;" />
+                <div *ngIf="selectedAttachment" class="mb-3">
+                  <!-- Show image preview -->
+                  <img
+                    *ngIf="selectedAttachment.type.startsWith('image')"
+                    [src]="previewUrl"
+                    class="img-fluid rounded"
+                    style="max-height: 300px"
+                  />
+                  
 
-          <button *ngIf="!message" class="btn btn-sm btn-secondary" style="border-radius: 50%; width: 40px; height: 40px;">
+                  <!-- Generic file icon -->
+                  <div *ngIf="!selectedAttachment.type.startsWith('image')">
+                    <i class="bi bi-file-earmark-text fs-1 text-secondary"></i>
+                    <p class="mt-2">{{ selectedAttachment.name }}</p>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3">
+                  <button class="btn btn-success" (click)="sendAttachmentNow()">
+                    <i class="fas fa-paper-plane me-2"></i>Send
+                  </button>
+                  <button
+                    class="btn btn-outline-danger"
+                    (click)="
+                      selectedAttachment = null;
+                      previewUrl = null;
+                      showAttachmentModal = false
+                    "
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <input
+            type="text"
+            [(ngModel)]="message"
+            (keyup.enter)="sendMessage()"
+            class="form-control me-2"
+            placeholder="Type a message..."
+            style="border-radius: 20px"
+          />
+
+          <button
+            *ngIf="!message"
+            class="btn btn-sm btn-secondary"
+            style="border-radius: 50%; width: 40px; height: 40px"
+          >
             <i class="fas fa-microphone"></i>
           </button>
-          <button *ngIf="message" class="btn btn-success" (click)="sendMessage()" style="border-radius: 20px;">
+          <button
+            *ngIf="message"
+            class="btn btn-success"
+            (click)="sendMessage()"
+            style="border-radius: 20px"
+          >
             Send
           </button>
         </div>
       </div>
     </ng-template>
-
+    <div
+      *ngIf="incomingCall"
+      class="modal d-block"
+      tabindex="-1"
+      style="background: rgba(0, 0, 0, 0.6); z-index: 1050"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4">
+          <h5 class="mb-3">📞 Incoming {{ incomingCall.callType }} Call</h5>
+          <p>
+            User <strong>{{ incomingCall.fromUserId }}</strong> is calling you.
+          </p>
+          <div class="d-flex justify-content-center gap-3 mt-3">
+            <button
+              class="btn btn-success rounded-circle px-4 py-2"
+              (click)="acceptCall()"
+            >
+              <i class="fas fa-phone"></i>
+            </button>
+            <button
+              class="btn btn-danger rounded-circle px-4 py-2"
+              (click)="rejectCall()"
+            >
+              <i class="fas fa-phone-slash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+  *ngIf="selectedImageUrl"
+  class="modal d-block"
+  tabindex="-1"
+  style="background: rgba(0,0,0,0.9); z-index: 2000;"
+  (click)="selectedImageUrl = null"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-transparent border-0 text-center">
+      <img
+        [src]="selectedImageUrl"
+        class="img-fluid rounded"
+        style="max-height: 80vh; max-width: 100%; object-fit: contain;"
+      />
+    </div>
+  </div>
+</div>
     <!-- Render template -->
     <ng-container *ngTemplateOutlet="chatBox"></ng-container>
   </div>
