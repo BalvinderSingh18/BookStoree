@@ -129,5 +129,53 @@ sendIceCandidate(otherUserId: string, candidate: string): void {
   this.hubConnection.invoke('SendIceCandidate', otherUserId, candidate)
     .catch(err => console.error('❌ Error sending ICE candidate:', err));
 }
+/**
+ * Sends an attachment (image, pdf, video) to a specific user
+ */
+sendAttachmentToUser(
+  receiverId: string,
+  fileUrl: string,
+  fileName: string,
+  fileType: string,
+  messageId: string
+): void {
+  this.hubConnection.invoke(
+    'SendAttachmentToUser',
+    receiverId,
+    fileUrl,
+    fileName,
+    fileType,
+    messageId
+  ).catch(err => console.error('❌ Error sending attachment:', err));
+}
+/**
+ * Listens for received attachments from another user
+ */
+onReceiveAttachment(callback: (
+  senderId: string,
+  attachment: {
+    Url: string;
+    Name: string;
+    Type: string;
+    MessageId: string;
+  }) => void
+): void {
+  this.hubConnection.on('ReceiveAttachment', callback);
+}
+/**
+ * Listens for confirmation that attachment was sent (for sender UI)
+ */
+onAttachmentSent(callback: (
+  receiverId: string,
+  attachment: {
+    Url: string;
+    Name: string;
+    Type: string;
+    MessageId: string;
+  }) => void
+): void {
+  this.hubConnection.on('AttachmentSent', callback);
+}
+
 
 }

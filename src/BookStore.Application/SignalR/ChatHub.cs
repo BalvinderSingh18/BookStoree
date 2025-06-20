@@ -69,5 +69,33 @@ namespace BookStore.SignalR
             var senderId = Context.UserIdentifier;
             await Clients.User(otherUserId).SendAsync("IceCandidateReceived", senderId, candidate);
         }
+        // 📎 Send attachment (photo/pdf/video)
+        public async Task SendAttachmentToUser(string receiverId, string fileUrl, string fileName, string fileType, string messageId)
+        {
+            var senderId = Context.UserIdentifier;
+
+            Console.WriteLine($"📥 Received attachment info:");
+            Console.WriteLine($"fileUrl: {fileUrl}");
+            Console.WriteLine($"fileName: {fileName}");
+            Console.WriteLine($"fileType: {fileType}");
+
+            if (string.IsNullOrWhiteSpace(fileUrl) || string.IsNullOrWhiteSpace(fileName))
+            {
+                Console.WriteLine("❌ One or more parameters are null or empty.");
+            }
+
+            var attachment = new
+            {
+                Url = fileUrl,
+                Name = fileName,
+                Type = fileType,
+                MessageId = messageId
+            };
+
+            await Clients.User(receiverId).SendAsync("ReceiveAttachment", senderId, fileUrl, fileName, fileType, messageId);
+            await Clients.User(senderId).SendAsync("AttachmentSent", receiverId, fileUrl, fileName, fileType, messageId);
+        }
+
+
     }
 }
