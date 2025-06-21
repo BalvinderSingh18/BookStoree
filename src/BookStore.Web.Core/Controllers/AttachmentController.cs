@@ -5,6 +5,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Abp.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using BookStore.Authorization.Users;
+using Microsoft.AspNetCore.Identity;
+using BookStore.SignalR;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BookStore.Controllers
 {
@@ -13,10 +18,12 @@ namespace BookStore.Controllers
     public class AttachmentController : BookStoreControllerBase
     {
         private readonly IWebHostEnvironment _env;
+        private readonly UserManager _userManager;
 
-        public AttachmentController(IWebHostEnvironment env)
+        public AttachmentController(IWebHostEnvironment env, BookStore.Authorization.Users.UserManager userManager)
         {
             _env = env;
+            _userManager = userManager;
         }
 
         [HttpPost]
@@ -70,6 +77,39 @@ namespace BookStore.Controllers
 
             return File(fileBytes, contentType, encodedFileName);
         }
+        [HttpPost]
+        public async Task<IActionResult> UploadProfilePicture(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var uploadsFolder = Path.Combine(_env.WebRootPath, "upload");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var userId = AbpSession.UserId.Value;
+            var user = await _userManager.GetUserByIdAsync(userId);
+            user.ProfilePictureFileName = uniqueFileName;
+            await _userManager.UpdateAsync(user);
+
+            var fileUrl = $"{Request.Scheme}://{Request.Host}/upload/{uniqueFileName}";
+
+            // ⏬ SignalR Broadcast
+            var context = HttpContext.RequestServices.GetService<IHubContext<ChatHub>>();
+            await context.Clients.All.SendAsync("UserProfilePictureUpdated", userId.ToString(), uniqueFileName);
+
+            return Ok(new { result = fileUrl });
+        }
+
+
 
     }
 }

@@ -14,5 +14,6 @@ namespace BookStore.Sessions.Dto
         public string UserName { get; set; }
 
         public string EmailAddress { get; set; }
+        public string ProfilePictureFileName { get; set; }
     }
 }

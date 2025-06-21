@@ -176,6 +176,69 @@ onAttachmentSent(callback: (
 ): void {
   this.hubConnection.on('AttachmentSent', callback);
 }
+joinGroup(groupName: string): void {
+  this.hubConnection.invoke('JoinGroup', groupName)
+    .catch(err => console.error('❌ Error joining group:', err));
+}
+leaveGroup(groupName: string): void {
+  this.hubConnection.invoke('LeaveGroup', groupName)
+    .catch(err => console.error('❌ Error leaving group:', err));
+}
+sendGroupMessage(groupName: string, message: string, messageId: string): void {
+  this.hubConnection.invoke('SendGroupMessage', groupName, message, messageId)
+    .catch(err => console.error('❌ Error sending group message:', err));
+}
+onReceiveGroupMessage(callback: (
+  groupName: string,
+  senderId: string,
+  message: string,
+  messageId: string
+) => void): void {
+  this.hubConnection.on('ReceiveGroupMessage', callback);
+}
+sendGroupAttachment(
+  groupName: string,
+  fileUrl: string,
+  fileName: string,
+  fileType: string,
+  messageId: string
+): void {
+  this.hubConnection.invoke(
+    'SendGroupAttachment',
+    groupName,
+    fileUrl,
+    fileName,
+    fileType,
+    messageId
+  ).catch(err => console.error('❌ Error sending group attachment:', err));
+}
+onReceiveGroupAttachment(callback: (
+  groupName: string,
+  senderId: string,
+  fileUrl: string,
+  fileName: string,
+  fileType: string,
+  messageId: string
+) => void): void {
+  this.hubConnection.on('ReceiveGroupAttachment', callback);
+}
+seenGroupMessage(groupName: string, messageId: string): void {
+  this.hubConnection.invoke('SeenGroupMessage', groupName, messageId)
+    .catch(err => console.error('❌ Error marking group message as seen:', err));
+}
+onGroupMessageSeen(callback: (
+  groupName: string,
+  messageId: string,
+  userId: string
+) => void): void {
+  this.hubConnection.on('GroupMessageSeen', callback);
+}
+onUserJoinedGroup(callback: (userId: string, groupName: string) => void): void {
+  this.hubConnection.on('UserJoinedGroup', callback);
+}
 
+onUserLeftGroup(callback: (userId: string, groupName: string) => void): void {
+  this.hubConnection.on('UserLeftGroup', callback);
+}
 
 }

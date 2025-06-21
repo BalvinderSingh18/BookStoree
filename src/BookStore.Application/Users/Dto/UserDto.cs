@@ -36,5 +36,11 @@ namespace BookStore.Users.Dto
         public DateTime CreationTime { get; set; }
 
         public string[] RoleNames { get; set; }
+        public string ProfilePictureFileName { get; set; }
+
+        public string ProfilePictureUrl =>
+            !string.IsNullOrEmpty(ProfilePictureFileName)
+                ? $"/profile-pictures/{ProfilePictureFileName}"
+                : "/assets/default-profile.png";
     }
 }
