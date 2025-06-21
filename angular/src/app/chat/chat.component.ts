@@ -33,6 +33,11 @@ export class ChatComponent implements OnInit {
   @ViewChild("localVideo") localVideoRef!: ElementRef;
   @ViewChild("remoteVideo") remoteVideoRef!: ElementRef;
 
+@ViewChild('cameraVideo') cameraVideo!: ElementRef<HTMLVideoElement>;
+localStream: MediaStream | null = null;
+isCameraModalOpen = false;
+cameraStream!: MediaStream;
+
   hubConnection!: signalR.HubConnection;
   userList: UserDto[] = [];
   selectedUser: UserDto | null = null;
@@ -63,7 +68,7 @@ export class ChatComponent implements OnInit {
   showEmojiPicker = false;
   optionsVisible = false;
 
-  localStream!: MediaStream;
+  // localStream!: MediaStream;
   remoteStream!: MediaStream;
   peerConnection!: RTCPeerConnection;
   isInCall: boolean = false;
@@ -76,10 +81,14 @@ export class ChatComponent implements OnInit {
   previewUrl: string | null = null;
   showAttachmentModal: boolean = false;
   selectedImageUrl: string | null = null;
+public profilePicUrl: string = '';
 
+mediaRecorder!: MediaRecorder;
+audioChunks: any[] = [];
+isRecording = false;
 
   constructor(
-    private appSession: AppSessionService,
+    public appSession: AppSessionService,
     private userService: UserServiceProxy,
     private cdr: ChangeDetectorRef,
     private tokenService: TokenService,
@@ -218,9 +227,62 @@ export class ChatComponent implements OnInit {
       }
     );
     this.cdr.detectChanges();
+const fileName = this.appSession.user?.profilePictureFileName;
+setTimeout(() => {
+  this.profilePicUrl = this.buildProfilePictureUrl(fileName);
+  this.cdr.detectChanges();
+});
+
+this.hubConnection.on(
+  "UserProfilePictureUpdated",
+  (userId: string, fileName: string) => {
+    const timestamp = Date.now();
+    const timestampedUrl = this.buildProfilePictureUrl(fileName, timestamp);
+
+    this.zone.run(() => {
+      setTimeout(() => {
+        // ✅ Update current user
+        if (this.currentUserId === userId && this.appSession.user) {
+          this.appSession.user.profilePictureFileName = fileName;
+          this.profilePicUrl = timestampedUrl;
+        }
+
+        // ✅ Update in user list
+        const index = this.userList.findIndex(u => u.id?.toString() === userId);
+        if (index !== -1) {
+          Object.assign(this.userList[index], {
+            profilePictureUrl: timestampedUrl,
+          });
+
+          if (this.selectedUser?.id?.toString() === userId) {
+            Object.assign(this.selectedUser, {
+              profilePictureUrl: timestampedUrl,
+            });
+          }
+        }
+
+        this.cdr.detectChanges();
+      }, 0); // Still helps break the timing
+    });
+  }
+);
+
+
+
+
+
+
+const savedPic = localStorage.getItem('profilePic');
+if (savedPic) {
+  this.appSession.user.profilePictureFileName = savedPic;
+}
+
 
   }
-
+buildProfilePictureUrl(fileName?: string, timestamp?: number): string {
+  if (!fileName) return '/assets/img/user.png';
+  return `https://localhost:44311/upload/${fileName}?t=${timestamp || 0}`;
+}
 onAttachmentSelected(file: File): void {
   this.selectedAttachment = file;
 
@@ -249,6 +311,8 @@ onAttachmentSelected(file: File): void {
         (u) => u.id?.toString() !== this.currentUserId
       );
     });
+      this.cdr.detectChanges();
+
   }
   async acceptCall() {
     if (!this.incomingCall) return;
@@ -296,13 +360,20 @@ selectUser(user: UserDto): void {
   if (this.selectedUser?.id === user.id) return;
 
   this.zone.run(() => {
-    this.selectedUser = user;
+    const extendedUser = {
+      ...user,
+      profilePictureUrl: this.buildProfilePictureUrl(user.profilePictureFileName),
+    };
+
+    this.selectedUser = extendedUser as UserDto & { profilePictureUrl: string };
+
     const otherUserId = user.id?.toString() || "";
     this.loadMessagesFromLocalStorage(this.currentUserId, otherUserId);
     this.scrollToBottom();
     this.cdr.detectChanges();
   });
 }
+
 trackByUserId(index: number, user: UserDto): number | undefined {
   return user.id;
 }
@@ -687,4 +758,276 @@ setDownloadStatus(messageId: string, status: boolean): void {
 getDownloadStatus(messageId: string): boolean {
   return localStorage.getItem(`downloaded_${messageId}`) === "true";
 }
+openUploadProfilePictureModal(): void {
+  // 👉 You can use abp modals or Angular modal for file upload
+  // Here's a simple example (adapt if needed)
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+const result = await fetch('https://localhost:44311/api/Attachment/UploadProfilePicture', {
+  method: 'POST',
+  body: formData,
+  headers: {
+    Authorization: 'Bearer ' + abp.auth.getToken(),
+  },
+});
+
+const data = await result.json();
+this.appSession.user.profilePictureFileName = result?.toString?.() || "";
+localStorage.setItem('profilePic', data.result);
+
+      } catch (error) {
+        console.error('❌ Upload failed:', error);
+      }
+    }
+  };
+  input.click();
+      this.cdr.detectChanges();
+
+}
+getProfilePictureUrl(fileName?: string): string {
+  if (typeof fileName !== 'string' || !fileName) return '/assets/img/user.png';
+  return fileName.includes("?t=")
+    ? fileName
+    : `https://localhost:44311/upload/${fileName}?t=${new Date().getTime()}`;
+}
+sendVoiceNote(file: File) {
+  // Optional: preview or show loader
+  this.onAttachmentSelected(file); // Reuse existing upload logic
+}
+startRecording() {
+  navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+    this.mediaRecorder = new MediaRecorder(stream);
+    this.audioChunks = [];
+
+    this.mediaRecorder.ondataavailable = (e) => {
+      this.audioChunks.push(e.data);
+    };
+
+    this.mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+      const file = new File([audioBlob], 'voice_note.webm', { type: 'audio/webm' });
+
+      this.sendVoiceNote(file);
+    };
+
+    this.mediaRecorder.start();
+    this.isRecording = true;
+      this.cdr.detectChanges();
+
+  });
+}
+
+stopRecording() {
+  if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+    this.mediaRecorder.stop();
+    this.isRecording = false;
+      this.cdr.detectChanges();
+
+  }
+}
+
+
+
+openCamera(): void {
+  this.isCameraModalOpen = true;
+
+  setTimeout(async () => {
+    try {
+      const videoEl = this.cameraVideo?.nativeElement;
+      if (!videoEl) {
+        console.error('Camera element not found');
+        return;
+      }
+
+      // Stop existing stream
+      if (this.localStream) {
+        this.localStream.getTracks().forEach(track => track.stop());
+      }
+
+      // Get default camera (no deviceId)
+      this.localStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false
+      });
+
+      videoEl.srcObject = this.localStream;
+      videoEl.onloadedmetadata = () => {
+        videoEl.play().catch((err) => console.error('Video play error:', err));
+      };
+
+      console.log("Camera stream started:", this.localStream.getVideoTracks()[0].label);
+    } catch (err: any) {
+      console.error("Camera error:", err);
+      alert("Failed to access camera: " + err.message);
+    }
+  }, 300); // Wait for modal to open
+}
+
+
+closeCamera(): void {
+  this.isCameraModalOpen = false;
+  if (this.cameraStream) {
+    this.cameraStream.getTracks().forEach((t) => t.stop());
+  }
+  this.cdr.detectChanges();
+}
+
+captureAndSendPhoto(): void {
+  const video = this.cameraVideo.nativeElement as HTMLVideoElement;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  canvas.toBlob((blob) => {
+    if (blob) {
+      const file = new File([blob], 'captured_photo.png', { type: 'image/png' });
+      this.sendAttachment(file);
+    }
+
+    this.closeCamera();
+  }, 'image/png');
+}
+
+// Join a SignalR group
+joinGroup(groupName: string): void {
+  this.hubConnection.invoke('JoinGroup', groupName)
+    .then(() => console.log(`✅ Joined group: ${groupName}`))
+    .catch(err => console.error('❌ Error joining group:', err));
+}
+
+// Leave a SignalR group
+leaveGroup(groupName: string): void {
+  this.hubConnection.invoke('LeaveGroup', groupName)
+    .then(() => console.log(`🚪 Left group: ${groupName}`))
+    .catch(err => console.error('❌ Error leaving group:', err));
+}
+
+// Send a group message
+sendGroupMessage(groupName: string, message: string, messageId: string): void {
+  this.hubConnection.invoke('SendGroupMessage', groupName, message, messageId)
+    .catch(err => console.error('❌ Error sending group message:', err));
+}
+
+// Receive group text messages
+onReceiveGroupMessage(): void {
+  this.hubConnection.on('ReceiveGroupMessage', (
+    groupName: string,
+    senderId: string,
+    message: string,
+    messageId: string
+  ) => {
+    this.zone.run(() => {
+      this.messages.push({
+        messageId,
+        senderId,
+        receiverId: groupName,
+        text: message,
+        timestamp: new Date().toISOString(),
+        status: "seen"
+      });
+
+      this.scrollToBottom();
+      this.cdr.detectChanges();
+    });
+  });
+}
+
+// Send group attachment
+sendGroupAttachment(
+  groupName: string,
+  fileUrl: string,
+  fileName: string,
+  fileType: string,
+  messageId: string
+): void {
+  this.hubConnection.invoke(
+    'SendGroupAttachment',
+    groupName,
+    fileUrl,
+    fileName,
+    fileType,
+    messageId
+  ).catch(err => console.error('❌ Error sending group attachment:', err));
+}
+
+// Receive group attachment
+onReceiveGroupAttachment(): void {
+  this.hubConnection.on('ReceiveGroupAttachment', (
+    groupName: string,
+    senderId: string,
+    fileUrl: string,
+    fileName: string,
+    fileType: string,
+    messageId: string
+  ) => {
+    this.zone.run(() => {
+      this.messages.push({
+        messageId,
+        senderId,
+        receiverId: groupName,
+        text: '',
+        timestamp: new Date().toISOString(),
+        status: "seen",
+        isAttachment: true,
+        fileUrl,
+        fileName,
+        fileType
+      });
+
+      this.scrollToBottom();
+      this.cdr.detectChanges();
+    });
+  });
+}
+
+// Mark group message as seen
+seenGroupMessage(groupName: string, messageId: string): void {
+  this.hubConnection.invoke('SeenGroupMessage', groupName, messageId)
+    .catch(err => console.error('❌ Error marking group message as seen:', err));
+}
+
+// Listen when someone sees a group message
+onGroupMessageSeen(): void {
+  this.hubConnection.on('GroupMessageSeen', (
+    groupName: string,
+    messageId: string,
+    userId: string
+  ) => {
+    const msg = this.messages.find(m => m.messageId === messageId);
+    if (msg) {
+      msg.status = 'seen';
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+// When a user joins a group
+onUserJoinedGroup(): void {
+  this.hubConnection.on('UserJoinedGroup', (userId: string, groupName: string) => {
+    console.log(`👤 User ${userId} joined group ${groupName}`);
+  });
+}
+
+// When a user leaves a group
+onUserLeftGroup(): void {
+  this.hubConnection.on('UserLeftGroup', (userId: string, groupName: string) => {
+    console.log(`👤 User ${userId} left group ${groupName}`);
+  });
+}
+
+
 }

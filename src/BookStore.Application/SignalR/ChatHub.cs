@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BookStore.SignalR
@@ -94,6 +95,68 @@ namespace BookStore.SignalR
 
             await Clients.User(receiverId).SendAsync("ReceiveAttachment", senderId, fileUrl, fileName, fileType, messageId);
             await Clients.User(senderId).SendAsync("AttachmentSent", receiverId, fileUrl, fileName, fileType, messageId);
+        }
+        public async Task NotifyProfilePictureUpdated(string newUrl)
+        {
+            var userId = Context.UserIdentifier;
+            await Clients.All.SendAsync("UserProfilePictureUpdated", userId, newUrl);
+        }
+
+        // Join a group
+        public async Task JoinGroup(string groupName)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+            Console.WriteLine($"📥 {Context.UserIdentifier} joined group {groupName}");
+
+            await Clients.Group(groupName).SendAsync("UserJoinedGroup", Context.UserIdentifier, groupName);
+        }
+
+        // Leave a group
+        public async Task LeaveGroup(string groupName)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+            Console.WriteLine($"📤 {Context.UserIdentifier} left group {groupName}");
+
+            await Clients.Group(groupName).SendAsync("UserLeftGroup", Context.UserIdentifier, groupName);
+        }
+        public async Task SendGroupMessage(string groupName, string message, string messageId)
+        {
+            var senderId = Context.UserIdentifier;
+            await Clients.Group(groupName).SendAsync("ReceiveGroupMessage", groupName, senderId, message, messageId);
+        }
+        public async Task SendGroupAttachment(string groupName, string fileUrl, string fileName, string fileType, string messageId)
+        {
+            var senderId = Context.UserIdentifier;
+
+            var attachment = new
+            {
+                Url = fileUrl,
+                Name = fileName,
+                Type = fileType,
+                MessageId = messageId
+            };
+
+            await Clients.Group(groupName).SendAsync("ReceiveGroupAttachment", groupName, senderId, fileUrl, fileName, fileType, messageId);
+        }
+        public async Task SeenGroupMessage(string groupName, string messageId)
+        {
+            var userId = Context.UserIdentifier;
+            await Clients.Group(groupName).SendAsync("GroupMessageSeen", groupName, messageId, userId);
+        }
+        public async Task NotifyGroupProfilePictureUpdated(string groupName, string newUrl)
+        {
+            await Clients.Group(groupName).SendAsync("GroupProfilePictureUpdated", groupName, newUrl);
+        }
+
+        public async Task NotifyGroupCreated(string groupName, string[] userIds)
+        {
+            foreach (var userId in userIds)
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+                await Clients.User(userId).SendAsync("OnGroupCreated", groupName);
+            }
+
+            Console.WriteLine($"✅ Group created: {groupName} with users: {string.Join(",", userIds)}");
         }
 
 

@@ -613,6 +613,61 @@ export class AttachmentServiceProxy {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * @param file (optional) 
+     * @return OK
+     */
+    uploadProfilePicture(file: FileParameter | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Attachment/UploadProfilePicture";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (file === null || file === undefined)
+            throw new Error("The parameter 'file' cannot be null.");
+        else
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUploadProfilePicture(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUploadProfilePicture(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUploadProfilePicture(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable()
@@ -10091,6 +10146,8 @@ export class UserDto implements IUserDto {
     lastLoginTime: moment.Moment | undefined;
     creationTime: moment.Moment;
     roleNames: string[] | undefined;
+    profilePictureFileName: string | undefined;
+    readonly profilePictureUrl: string | undefined;
 
     constructor(data?: IUserDto) {
         if (data) {
@@ -10117,6 +10174,8 @@ export class UserDto implements IUserDto {
                 for (let item of _data["roleNames"])
                     this.roleNames.push(item);
             }
+            this.profilePictureFileName = _data["profilePictureFileName"];
+            (<any>this).profilePictureUrl = _data["profilePictureUrl"];
         }
     }
 
@@ -10143,6 +10202,8 @@ export class UserDto implements IUserDto {
             for (let item of this.roleNames)
                 data["roleNames"].push(item);
         }
+        data["profilePictureFileName"] = this.profilePictureFileName;
+        data["profilePictureUrl"] = this.profilePictureUrl;
         return data;
     }
 
@@ -10165,6 +10226,8 @@ export interface IUserDto {
     lastLoginTime: moment.Moment | undefined;
     creationTime: moment.Moment;
     roleNames: string[] | undefined;
+    profilePictureFileName: string | undefined;
+    profilePictureUrl: string | undefined;
 }
 
 export class UserDtoPagedResultDto implements IUserDtoPagedResultDto {
@@ -10228,6 +10291,7 @@ export class UserLoginInfoDto implements IUserLoginInfoDto {
     surname: string | undefined;
     userName: string | undefined;
     emailAddress: string | undefined;
+    profilePictureFileName: string | undefined;
 
     constructor(data?: IUserLoginInfoDto) {
         if (data) {
@@ -10245,6 +10309,7 @@ export class UserLoginInfoDto implements IUserLoginInfoDto {
             this.surname = _data["surname"];
             this.userName = _data["userName"];
             this.emailAddress = _data["emailAddress"];
+            this.profilePictureFileName = _data["profilePictureFileName"];
         }
     }
 
@@ -10262,6 +10327,7 @@ export class UserLoginInfoDto implements IUserLoginInfoDto {
         data["surname"] = this.surname;
         data["userName"] = this.userName;
         data["emailAddress"] = this.emailAddress;
+        data["profilePictureFileName"] = this.profilePictureFileName;
         return data;
     }
 
@@ -10279,6 +10345,7 @@ export interface IUserLoginInfoDto {
     surname: string | undefined;
     userName: string | undefined;
     emailAddress: string | undefined;
+    profilePictureFileName: string | undefined;
 }
 
 export interface FileParameter {
