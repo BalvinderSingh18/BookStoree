@@ -4160,6 +4160,139 @@ export class StateServiceProxy {
 }
 
 @Injectable()
+export class StripeServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createSession(body: StripeSessionRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/stripe/create-session";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateSession(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateSession(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCreateSession(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+// @Injectable()
+// export class StripeServiceProxy {
+//     private http: HttpClient;
+//     private baseUrl: string;
+//     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+//     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+//         this.http = http;
+//         this.baseUrl = baseUrl ?? "";
+//     }
+
+//     /**
+//      * @param priceId (optional) 
+//      * @return OK
+//      */
+//     createCheckoutSession(priceId: string | undefined): Observable<string> {
+//         let url_ = this.baseUrl + "/api/services/app/Stripe/CreateCheckoutSession?";
+//         if (priceId === null)
+//             throw new Error("The parameter 'priceId' cannot be null.");
+//         else if (priceId !== undefined)
+//             url_ += "priceId=" + encodeURIComponent("" + priceId) + "&";
+//         url_ = url_.replace(/[?&]$/, "");
+
+//         let options_ : any = {
+//             observe: "response",
+//             responseType: "blob",
+//             headers: new HttpHeaders({
+//                 "Accept": "text/plain"
+//             })
+//         };
+
+//         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+//             return this.processCreateCheckoutSession(response_);
+//         })).pipe(_observableCatch((response_: any) => {
+//             if (response_ instanceof HttpResponseBase) {
+//                 try {
+//                     return this.processCreateCheckoutSession(response_ as any);
+//                 } catch (e) {
+//                     return _observableThrow(e) as any as Observable<string>;
+//                 }
+//             } else
+//                 return _observableThrow(response_) as any as Observable<string>;
+//         }));
+//     }
+
+//     protected processCreateCheckoutSession(response: HttpResponseBase): Observable<string> {
+//         const status = response.status;
+//         const responseBlob =
+//             response instanceof HttpResponse ? response.body :
+//             (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+//         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+//         if (status === 200) {
+//             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+//             let result200: any = null;
+//             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+//                 result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+//             return _observableOf(result200);
+//             }));
+//         } else if (status !== 200 && status !== 204) {
+//             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+//             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+//             }));
+//         }
+//         return _observableOf(null as any);
+//     }
+// }
+
+@Injectable()
 export class StudentServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -9458,6 +9591,49 @@ export enum Status {
     _0 = 0,
     _1 = 1,
     _2 = 2,
+}
+
+export class StripeSessionRequest implements IStripeSessionRequest {
+    priceId: string | undefined;
+
+    constructor(data?: IStripeSessionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.priceId = _data["priceId"];
+        }
+    }
+
+    static fromJS(data: any): StripeSessionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new StripeSessionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["priceId"] = this.priceId;
+        return data;
+    }
+
+    clone(): StripeSessionRequest {
+        const json = this.toJSON();
+        let result = new StripeSessionRequest();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IStripeSessionRequest {
+    priceId: string | undefined;
 }
 
 export class StudentDto implements IStudentDto {

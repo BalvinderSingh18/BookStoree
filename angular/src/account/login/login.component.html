@@ -13,93 +13,73 @@
           maxlength="256"
           #userNameOrEmailAddressModel="ngModel"
           #userNameOrEmailAddressEl
-          />
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-user"></span>
-            </div>
+        />
+        <div class="input-group-append">
+          <div class="input-group-text">
+            <span class="fas fa-user"></span>
           </div>
         </div>
-        <abp-validation-summary
-          [control]="userNameOrEmailAddressModel"
-          [controlEl]="userNameOrEmailAddressEl"
-        ></abp-validation-summary>
       </div>
-      <div class="form-group">
-        <div class="input-group">
-          <input
-            type="password"
-            class="form-control"
-            name="password"
-            [(ngModel)]="authService.authenticateModel.password"
-            [placeholder]="'Password' | localize"
-            required
-            maxlength="32"
-            #passwordModel="ngModel"
-            #passwordEl
-            />
-            <div class="input-group-append">
-              <div class="input-group-text">
-                <span class="fas fa-lock"></span>
-              </div>
-            </div>
-          </div>
-          <abp-validation-summary
-            [control]="passwordModel"
-            [controlEl]="passwordEl"
-          ></abp-validation-summary>
-        </div>
-        <div class="form-group row">
-          <div class="col-md-8">
-            <div class="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                class="custom-control-input"
-                id="rememberMe"
-                name="rememberMe"
-                [(ngModel)]="authService.rememberMe"
-                />
-                <label for="rememberMe" class="custom-control-label">
-                  {{ "RememberMe" | localize }}
-                </label>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <button
-                type="submit"
-                class="btn btn-primary btn-block"
-                [disabled]="!loginForm.form.valid || submitting"
-                >
-                {{ "LogIn" | localize }}
-              </button>
-            </div>
-          </div>
-        </form>
-        <!-- @if (isSelfRegistrationAllowed) {
-          <p class="mb-1">
-            <a [routerLink]="['../register']">
-              <i class="fa fa-plus-circle"></i> {{ "Register" | localize }}
-            </a>
-          </p>
-        } -->
-      </div>
-      <div class="mt-5">
-    <!-- <div class="mb-2">
-        <span>{{ 'PasswordlessLogin_Description' | localize }}</span>
-        <a href="/account/passwordless-login" id="passwordless-btn"> {{ 'ClickHere' | localize }}</a>
-    </div> -->
-
-    <div  class="mt-2">
-        <span>{{ 'NotAMemberYet' | localize }}</span>
+      <abp-validation-summary
+        [control]="userNameOrEmailAddressModel"
+        [controlEl]="userNameOrEmailAddressEl"
+      ></abp-validation-summary>
     </div>
-    <span *ngIf="isSelfRegistrationAllowed">
-        <a routerLink="/account/register">{{ 'CreateAnAccount' | localize }}</a>
-        <span class="pipe-divider"> | </span>
-   </span>
-    <span>
-        <a routerLink="/account/select-edition">{{ 'NewTenant' | localize }}</a>
-        <span class="pipe-divider"> | </span>
-    </span>
-
-    <!-- <a routerLink="/account/email-activation" id="email-activation-btn">{{ 'EmailActivation' | localize }}</a> -->
+    <div class="form-group">
+      <div class="input-group">
+        <input
+          type="password"
+          class="form-control"
+          name="password"
+          [(ngModel)]="authService.authenticateModel.password"
+          [placeholder]="'Password' | localize"
+          required
+          maxlength="32"
+          #passwordModel="ngModel"
+          #passwordEl
+        />
+        <div class="input-group-append">
+          <div class="input-group-text">
+            <span class="fas fa-lock"></span>
+          </div>
+        </div>
+      </div>
+      <abp-validation-summary
+        [control]="passwordModel"
+        [controlEl]="passwordEl"
+      ></abp-validation-summary>
+    </div>
+    <div class="form-group row">
+      <div class="col-md-8">
+        <div class="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            class="custom-control-input"
+            id="rememberMe"
+            name="rememberMe"
+            [(ngModel)]="authService.rememberMe"
+          />
+          <label for="rememberMe" class="custom-control-label">
+            {{ "RememberMe" | localize }}
+          </label>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <button
+          type="submit"
+          class="btn btn-primary btn-block"
+          [disabled]="!loginForm.form.valid || submitting"
+        >
+          {{ "LogIn" | localize }}
+        </button>
+      </div>
+    </div>
+  </form>
+<p *ngIf="isSelfRegistrationAllowed" class="mb-1 text-center">
+  <button class="btn btn-outline-primary" [routerLink]="['/account/select-edition']">
+    <i class="fa fa-plus-circle"></i> {{ "Register" | localize }}
+  </button>
+</p>
+ 
+ 
 </div>

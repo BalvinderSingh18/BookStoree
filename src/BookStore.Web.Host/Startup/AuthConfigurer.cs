@@ -57,21 +57,29 @@ namespace BookStore.Web.Host.Startup
         public static Task QueryStringTokenResolver(MessageReceivedContext context)
         {
             if (!context.HttpContext.Request.Path.HasValue ||
-                !context.HttpContext.Request.Path.Value.StartsWith("/signalr"))
+                !context.HttpContext.Request.Path.Value.Contains("signalr"))
             {
-                // Not a SignalR request
                 return Task.CompletedTask;
             }
 
-            var qsAuthToken = context.HttpContext.Request.Query["enc_auth_token"].FirstOrDefault();
-            if (qsAuthToken == null)
+            var qsAuthToken = context.HttpContext.Request.Query["enc_auth_token"];
+
+            if (string.IsNullOrWhiteSpace(qsAuthToken))
             {
-                // No token found
                 return Task.CompletedTask;
             }
 
-            // Decrypt and assign the token
-            context.Token = SimpleStringCipher.Instance.Decrypt(qsAuthToken);
+            try
+            {
+                context.Token = SimpleStringCipher.Instance.Decrypt(qsAuthToken);
+            }
+            catch (Exception ex)
+            {
+                // Use your logging mechanism here
+                Console.WriteLine($"[⚠️ Decrypt Error] Token: {qsAuthToken} — {ex.Message}");
+                context.Token = null; // Or skip authentication
+            }
+
             return Task.CompletedTask;
         }
     }

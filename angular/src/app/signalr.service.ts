@@ -15,7 +15,7 @@ export class SignalRService {
    */
   initConnection(): void {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${AppConsts.remoteServiceBaseUrl}/signalr-chat`, {
+      .withUrl(`${AppConsts.remoteServiceBaseUrl}/signalr/chatHub`, {
         accessTokenFactory: () => abp.auth.getToken(),
       })
       .withAutomaticReconnect()

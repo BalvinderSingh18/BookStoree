@@ -21,6 +21,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Castle.Core.Configuration;
+using Stripe;
 
 namespace BookStore.Web.Host.Startup
 {
@@ -116,6 +118,7 @@ namespace BookStore.Web.Host.Startup
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            StripeConfiguration.ApiKey = _appConfiguration["Stripe:SecretKey"];
             app.UseAbp(options => { options.UseAbpRequestLocalization = false; });
 
             app.UseCors(_defaultCorsPolicyName);
@@ -134,6 +137,7 @@ namespace BookStore.Web.Host.Startup
             {
                 // ✅ Register SignalR hub
                 endpoints.MapHub<ChatHub>("/signalr/chatHub");
+                endpoints.MapControllers();
 
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");

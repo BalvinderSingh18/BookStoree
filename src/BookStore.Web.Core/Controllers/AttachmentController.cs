@@ -20,7 +20,7 @@ namespace BookStore.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly UserManager _userManager;
 
-        public AttachmentController(IWebHostEnvironment env, BookStore.Authorization.Users.UserManager userManager)
+        public AttachmentController(IWebHostEnvironment env, UserManager userManager)
         {
             _env = env;
             _userManager = userManager;

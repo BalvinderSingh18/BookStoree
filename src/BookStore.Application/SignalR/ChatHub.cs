@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BookStore.SignalR
@@ -147,17 +148,72 @@ namespace BookStore.SignalR
         {
             await Clients.Group(groupName).SendAsync("GroupProfilePictureUpdated", groupName, newUrl);
         }
+        public static class ChatConnectionMapping
+        {
+            private static readonly Dictionary<string, HashSet<string>> _connections = new();
+
+            public static void Add(string userId, string connectionId)
+            {
+                lock (_connections)
+                {
+                    if (!_connections.TryGetValue(userId, out var conns))
+                    {
+                        conns = new HashSet<string>();
+                        _connections[userId] = conns;
+                    }
+                    conns.Add(connectionId);
+                }
+            }
+
+            public static void Remove(string userId, string connectionId)
+            {
+                lock (_connections)
+                {
+                    if (_connections.TryGetValue(userId, out var conns))
+                    {
+                        conns.Remove(connectionId);
+                        if (conns.Count == 0)
+                        {
+                            _connections.Remove(userId);
+                        }
+                    }
+                }
+            }
+
+            public static IReadOnlyCollection<string> GetConnections(string userId)
+            {
+                lock (_connections)
+                {
+                    return _connections.TryGetValue(userId, out var conns) ? conns.ToList() : new List<string>();
+                }
+            }
+        }
 
         public async Task NotifyGroupCreated(string groupName, string[] userIds)
         {
+            Console.WriteLine($"✅ Group created: {groupName} with users: {string.Join(", ", userIds)}");
+
             foreach (var userId in userIds)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-                await Clients.User(userId).SendAsync("OnGroupCreated", groupName);
+                // Send notification to all users
+                await Clients.User(userId).SendAsync("OnGroupCreated", groupName, userIds);
             }
 
-            Console.WriteLine($"✅ Group created: {groupName} with users: {string.Join(",", userIds)}");
+            // ❗ Delay short time to allow clients to receive before joining
+            await Task.Delay(500); // optional but helps prevent race condition
+
+            // 🔄 Map userId -> connectionIds
+            foreach (var user in userIds)
+            {
+                var connectionIds = ChatConnectionMapping.GetConnections(user);
+                foreach (var connId in connectionIds)
+                {
+                    await Groups.AddToGroupAsync(connId, groupName);
+                }
+            }
         }
+
+
 
 
     }
